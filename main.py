@@ -1,10 +1,11 @@
 import yfinance as yf
 
-# 애플 주식 데이터
-ticker = yf.Ticker("AAPL")
+us_ticker = ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA"]
 
-# 최근 5일 주가
-history = ticker.history(period = "5d")
+for symbol in us_ticker:
+    ticker = yf.Ticker(symbol)
+    history = ticker.history(period = "5d")
 
-print("=== AAPL 최근 5일 주가 ===")
-print(history)
+    print(f"=== {symbol} 최근 5일 ===")
+    print(history)
+    print()
