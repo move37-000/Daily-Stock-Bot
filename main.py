@@ -6,6 +6,6 @@ for symbol in us_ticker:
     ticker = yf.Ticker(symbol)
     history = ticker.history(period = "5d")
 
-    print(f"=== {symbol} 최근 5일 ===")
+    print(f"==== {symbol} 최근 5일 ====")
     print(history)
     print()
