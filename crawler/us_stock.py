@@ -1,6 +1,6 @@
 import yfinance as yf
 
-def fetch_us_stock(tickers):
+def fetch_us_stocks(tickers):
     """미국 주식 데이터 수집"""
     results = []
 
