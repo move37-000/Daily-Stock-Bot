@@ -1,26 +1,22 @@
 from config import US_TICKERS, KR_TICKERS
 from crawler import fetch_us_stocks, fetch_kr_stocks
+from report import generate_report, save_report
+
 
 def main():
-    # 미국 주식
-    print("========== 미국 주식 ==========\n")
+    print("데이터 수집 중...")
+
     us_results = fetch_us_stocks(US_TICKERS)
-
-    for stock in us_results:
-        print(f"{stock['symbol']}")
-        print(f"  종가: ${stock['close']:.2f}")
-        print(f"  변동: ${stock['change']:+.2f} ({stock['change_pct']:+.2f}%)")
-        print()
-
-    # 한국 주식
-    print("========== 한국 주식 ==========\n")
     kr_results = fetch_kr_stocks(KR_TICKERS)
 
-    for stock in kr_results:
-        print(f"{stock['name']}({stock['code']})")
-        print(f"  종가: {stock['close']:,}원")
-        print(f"  변동: {stock['change']:+,}원 ({stock['change_pct']:+.2f}%)")
-        print()
+    print("리포트 생성 중...")
+
+    content = generate_report(us_results, kr_results)
+    filename = save_report(content)
+
+    print(f"리포트 저장 완료: {filename}")
+    print()
+    print(content)
 
 
 if __name__ == "__main__":
