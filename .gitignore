@@ -11,5 +11,5 @@ __pycache__/
 # 환경변수 (API 키 등)
 .env
 
-# 리포트
-reports/
+# DB 파일
+data/
