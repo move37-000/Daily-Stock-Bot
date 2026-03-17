@@ -5,27 +5,28 @@ from bs4 import BeautifulSoup
 
 
 def fetch_kr_news(code, limit=3):
-    """네이버 금융에서 종목 뉴스 크롤링"""
-    url = f"https://finance.naver.com/item/news_news.naver?code={code}"
+    """네이버 금융 API에서 종목 뉴스 가져오기"""
+    url = f"https://api.stock.naver.com/news/stock/{code}?pageSize={limit}"
     headers = {"User-Agent": "Mozilla/5.0"}
 
-    response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text, "html.parser")
+    try:
+        response = requests.get(url, headers=headers)
+        data = response.json()
 
-    news = []
-    rows = soup.select("table.type5 tbody tr.tit")
+        news = []
+        for item in data:
+            article = item.get('items', [{}])[0]
+            if article:
+                office_id = article.get('officeId', '')
+                article_id = article.get('articleId', '')
+                news.append({
+                    'title': article.get('title', ''),
+                    'link': f"https://n.news.naver.com/mnews/article/{office_id}/{article_id}"
+                })
 
-    for row in rows[:limit]:
-        a_tag = row.select_one("a")
-        if a_tag:
-            title = a_tag.get_text(strip=True)
-            link = "https://finance.naver.com" + a_tag["href"]
-            news.append({
-                "title": title,
-                "link": link
-            })
-
-    return news
+        return news
+    except Exception:
+        return []
 
 def fetch_kr_stocks(tickers):
     """한국 주식 데이터 수집"""
