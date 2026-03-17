@@ -21,10 +21,11 @@ def fetch_us_stocks(tickers):
         # 뉴스 가져오기 (최신 3개)
         news = []
         for item in ticker.news[:3]:
+            content = item.get('content', {})
             news.append({
-                'title': item.get('title', ''),
-                'link': item.get('link', ''),
-                'publisher': item.get('publisher', '')
+                'title': content.get('title', ''),
+                'link': content.get('previewUrl', ''),
+                'publisher': content.get('provider', {}).get('displayName', '')
             })
 
         results.append({
@@ -32,6 +33,7 @@ def fetch_us_stocks(tickers):
             'close': close,
             'change': change,
             'change_pct': change_pct,
+            'news': news
         })
 
     return results
