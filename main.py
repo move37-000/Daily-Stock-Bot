@@ -1,7 +1,7 @@
 from config import US_TICKERS, KR_TICKERS
 from crawler import fetch_us_stocks, fetch_kr_stocks
 from report import generate_report, save_report
-from database import init_db, save_stock_price
+from database import init_db, save_stock_price, get_stock_history
 
 
 def main():
@@ -43,8 +43,6 @@ def main():
             print(f"  저장: {stock['name']}")
         else:
             print(f"  스킵(이미 존재): {stock['name']}")
-
-    print("리포트 생성 중...")
 
     content = generate_report(us_results, kr_results)
     filename = save_report(content)
