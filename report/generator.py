@@ -35,7 +35,13 @@ def generate_report(us_results, kr_results):
         lines.append(f"### {stock['name']} ({stock['code']})")
         lines.append(f"- 종가: {stock['close']:,}원")
         lines.append(f"- 변동: {stock['change']:+,}원 ({stock['change_pct']:+.2f}%)")
-        lines.append("")
+
+        # 뉴스 추가
+        if stock.get('news'):
+            lines.append("")
+            lines.append("**관련 뉴스:**")
+            for news in stock['news']:
+                lines.append(f"- [{news['title']}]({news['link']})")
 
     return "\n".join(lines)
 
