@@ -1,7 +1,8 @@
-from config import US_TICKERS, KR_TICKERS
+from config import US_TICKERS, KR_TICKERS, DISCORD_WEBHOOK_URL
 from crawler import fetch_us_stocks, fetch_kr_stocks
 from report import generate_report, save_report
 from database import init_db, save_stock_price, get_stock_history
+from notifier import send_discord_message
 
 
 def main():
@@ -48,8 +49,14 @@ def main():
     filename = save_report(content)
 
     print(f"리포트 저장 완료: {filename}")
-    print()
-    print(content)
+
+    # Discord 알림
+    print("Discord 전송 중...")
+
+    if send_discord_message(DISCORD_WEBHOOK_URL, us_results, kr_results):
+        print("Discord 전송 완료!")
+    else:
+        print("Discord 전송 실패")
 
 
 if __name__ == "__main__":
