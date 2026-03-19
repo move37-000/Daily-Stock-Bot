@@ -1,1 +1,1 @@
-DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1483464783138394133/buWSfBLkiutIbxW9W_rSMwm6oin2C1KkwSoXskhhO5HHL8RgrH0h06N_GmZWQKKkJJnV"
+SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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"

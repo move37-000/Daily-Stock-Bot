@@ -1,1 +1,1 @@
-from .discord import send_discord_message
+from .slack import send_slack_message
