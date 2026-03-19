@@ -36,7 +36,11 @@ def save_kr_stocks(results):
 
 
 def main():
-    init_db()
+    try:
+        init_db()
+    except Exception as e:
+        print(f"[에러] DB 초기화 실패: {e}")
+        return
 
     # 1. 데이터 수집
     print("데이터 수집 중...")
@@ -50,16 +54,22 @@ def main():
 
     # 3. 리포트 생성
     print("리포트 생성 중...")
-    content = generate_report(us_results, kr_results)
-    filename = save_report(content)
-    print(f"리포트 저장 완료: {filename}")
+    try:
+        content = generate_report(us_results, kr_results)
+        filename = save_report(content)
+        print(f"리포트 저장 완료: {filename}")
+    except Exception as e:
+        print(f"[에러] 리포트 생성 실패: {e}")
 
     # 4. Slack 알림
     print("Slack 전송 중...")
-    if send_slack_message(SLACK_WEBHOOK_URL, us_results, kr_results):
-        print("Slack 전송 완료!")
-    else:
-        print("Slack 전송 실패")
+    try:
+        if send_slack_message(SLACK_WEBHOOK_URL, us_results, kr_results):
+            print("Slack 전송 완료!")
+        else:
+            print("[경고] Slack 전송 실패")
+    except Exception as e:
+        print(f"[에러] Slack 전송 실패: {e}")
 
 
 if __name__ == "__main__":

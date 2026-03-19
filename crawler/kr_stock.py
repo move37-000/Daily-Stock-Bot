@@ -40,32 +40,37 @@ def fetch_kr_stocks(tickers):
     results = []
 
     for code, name in tickers.items():
-        history = krx.get_market_ohlcv_by_date(
-            fromdate=start_str,
-            todate=end_str,
-            ticker=code
-        )
+        try:
+            history = krx.get_market_ohlcv_by_date(
+                fromdate=start_str,
+                todate=end_str,
+                ticker=code
+            )
 
-        if history.empty:
+            if history.empty:
+                continue
+
+            latest = history.iloc[-1]
+            prev = history.iloc[-2]
+
+            close = latest['종가']
+            change = close - prev['종가']
+            change_pct = (change / prev['종가']) * 100
+
+            # 뉴스 가져오기
+            news = fetch_kr_news(code)
+
+            results.append({
+                'code': code,
+                'name': name,
+                'close': close,
+                'change': change,
+                'change_pct': change_pct,
+                'news': news
+            })
+
+        except Exception as e:
+            print(f"  [에러] {name}: {e}")
             continue
-
-        latest = history.iloc[-1]
-        prev = history.iloc[-2]
-
-        close = latest['종가']
-        change = close - prev['종가']
-        change_pct = (change / prev['종가']) * 100
-
-        # 뉴스 가져오기
-        news = fetch_kr_news(code)
-
-        results.append({
-            'code': code,
-            'name': name,
-            'close': close,
-            'change': change,
-            'change_pct': change_pct,
-            'news': news
-        })
 
     return results

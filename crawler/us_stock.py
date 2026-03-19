@@ -5,35 +5,43 @@ def fetch_us_stocks(tickers):
     results = []
 
     for symbol in tickers:
-        ticker = yf.Ticker(symbol)
-        history = ticker.history(period="5d")
+        try:
+            ticker = yf.Ticker(symbol)
+            history = ticker.history(period="5d")
 
-        if history.empty:
-            continue
+            if history.empty:
+                continue
 
-        latest = history.iloc[-1]
-        prev = history.iloc[-2]
+            latest = history.iloc[-1]
+            prev = history.iloc[-2]
 
-        close = latest['Close']
-        change = close - prev['Close']
-        change_pct = (change / prev['Close']) * 100
+            close = latest['Close']
+            change = close - prev['Close']
+            change_pct = (change / prev['Close']) * 100
 
-        # 뉴스 가져오기 (최신 3개)
-        news = []
-        for item in ticker.news[:3]:
-            content = item.get('content', {})
-            news.append({
-                'title': content.get('title', ''),
-                'link': content.get('previewUrl', ''),
-                'publisher': content.get('provider', {}).get('displayName', '')
+            # 뉴스 가져오기 (최신 3개)
+            news = []
+            try:
+                for item in ticker.news[:3]:
+                    content = item.get('content', {})
+                    news.append({
+                        'title': content.get('title', ''),
+                        'link': content.get('previewUrl', ''),
+                        'publisher': content.get('provider', {}).get('displayName', '')
+                    })
+            except Exception:
+                pass  # 뉴스 실패해도 주가 데이터는 유지
+
+            results.append({
+                'symbol': symbol,
+                'close': close,
+                'change': change,
+                'change_pct': change_pct,
+                'news': news
             })
 
-        results.append({
-            'symbol': symbol,
-            'close': close,
-            'change': change,
-            'change_pct': change_pct,
-            'news': news
-        })
+        except Exception as e:
+            print(f"  [에러] {symbol}: {e}")
+            continue
 
     return results
