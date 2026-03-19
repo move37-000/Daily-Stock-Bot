@@ -54,7 +54,7 @@ def main():
     print("Discord 전송 중...")
 
     if send_discord_message(DISCORD_WEBHOOK_URL, us_results, kr_results):
-        print("Discord 전송 완료!")
+        print("Discord 전송 완료!") 
     else:
         print("Discord 전송 실패")
 
