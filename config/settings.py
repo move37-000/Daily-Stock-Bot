@@ -1,1 +1,6 @@
-SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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"
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
