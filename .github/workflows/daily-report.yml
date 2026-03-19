@@ -21,9 +21,11 @@ jobs:
 
       - name: 라이브러리 설치
         run: |
-          pip install yfinance pykrx beautifulsoup4 requests
+          pip install yfinance pykrx beautifulsoup4 requests python-dotenv
 
       - name: 리포트 생성
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: python main.py
 
       - name: 리포트 커밋 및 푸시
