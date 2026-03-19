@@ -1,8 +1,8 @@
-from config import US_TICKERS, KR_TICKERS, SLACK_WEBHOOK_URL
-from crawler import fetch_us_stocks, fetch_kr_stocks
-from report import generate_report, save_report
-from database import init_db, save_stock_price
-from notifier import send_slack_message
+from src.config import US_TICKERS, KR_TICKERS, SLACK_WEBHOOK_URL
+from src.crawler import fetch_us_stocks, fetch_kr_stocks
+from src.report import generate_report, save_report
+from src.database import init_db, save_stock_price
+from src.notifier import send_slack_message
 
 
 def save_us_stocks(results):

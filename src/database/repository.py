@@ -1,5 +1,5 @@
 from datetime import datetime
-from .connection import get_connection
+from src.database.connection import get_connection
 
 def save_stock_price(symbol, name, market, close_price, change, change_pct):
     """주가 데이터 저장"""
