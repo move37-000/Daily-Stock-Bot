@@ -1,3 +1,11 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# 환경변수
+SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
+
 # 미국 주식 관심 종목
 US_TICKERS = ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA"]
 
