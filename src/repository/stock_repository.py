@@ -1,14 +1,44 @@
+import sqlite3
+import os
 from datetime import datetime
-from src.database.connection import get_connection
+
+
+def _get_connection():
+    """SQLite 연결 반환"""
+    os.makedirs("data", exist_ok=True)
+    return sqlite3.connect("data/stock.db")
+
+
+def init_db():
+    """테이블 생성"""
+    conn = _get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS stock_prices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            name TEXT NOT NULL,
+            market TEXT NOT NULL,
+            close_price REAL NOT NULL,
+            change REAL NOT NULL,
+            change_pct REAL NOT NULL,
+            collected_at TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
 
 def save_stock_price(symbol, name, market, close_price, change, change_pct):
     """주가 데이터 저장"""
-    conn = get_connection()
+    conn = _get_connection()
     cursor = conn.cursor()
 
     today = datetime.now().strftime("%Y-%m-%d")
 
-    # 오늘 이미 저장된 데이터가 있으면 스킵
     cursor.execute("""
         SELECT id FROM stock_prices 
         WHERE symbol = ? AND collected_at = ?
@@ -16,7 +46,7 @@ def save_stock_price(symbol, name, market, close_price, change, change_pct):
 
     if cursor.fetchone():
         conn.close()
-        return False  # 이미 존재
+        return False
 
     cursor.execute("""
         INSERT INTO stock_prices (symbol, name, market, close_price, change, change_pct, collected_at)
@@ -25,12 +55,12 @@ def save_stock_price(symbol, name, market, close_price, change, change_pct):
 
     conn.commit()
     conn.close()
-    return True  # 저장 성공
+    return True
 
 
 def get_stock_history(symbol, days=30):
     """종목 히스토리 조회"""
-    conn = get_connection()
+    conn = _get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
