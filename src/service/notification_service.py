@@ -1,9 +1,9 @@
 import requests
 
+
 def send_slack_message(webhook_url, us_results, kr_results):
     """Slack으로 주식 리포트 전송"""
 
-    # 메시지 구성
     lines = ["*📈 일일 주식 리포트*", ""]
 
     lines.append("*🇺🇸 미국 주식*")
@@ -19,7 +19,6 @@ def send_slack_message(webhook_url, us_results, kr_results):
 
     message = "\n".join(lines)
 
-    # Slack 전송
     payload = {"text": message}
     response = requests.post(webhook_url, json=payload)
 

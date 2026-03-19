@@ -1,1 +1,0 @@
-from src.notifier.slack import send_slack_message
