@@ -5,18 +5,31 @@ from src.repository import init_db, save_stock_price, get_stock_history
 
 
 def save_us_stocks(results):
-    """미국 주식 DB 저장"""
+    """미국 주식 DB 저장 (5일치)"""
     for stock in results:
-        saved = save_stock_price(
-            symbol=stock['symbol'],
-            name=stock['symbol'],
-            market='US',
-            close_price=stock['close'],
-            change=stock['change'],
-            change_pct=stock['change_pct']
-        )
-        status = "저장" if saved else "스킵(이미 존재)"
-        print(f"  {status}: {stock['symbol']}")
+        # 5일치 히스토리 저장
+        if 'history' in stock:
+            for i, day in enumerate(stock['history']):
+                # 변동 계산 (첫날은 이전 데이터 없으니까 0)
+                if i == 0:
+                    change = 0
+                    change_pct = 0
+                else:
+                    prev_close = stock['history'][i - 1]['close']
+                    change = day['close'] - prev_close
+                    change_pct = (change / prev_close) * 100
+
+                saved = save_stock_price(
+                    symbol=stock['symbol'],
+                    name=stock['symbol'],
+                    market='US',
+                    close_price=day['close'],
+                    change=change,
+                    change_pct=change_pct,
+                    collected_at=day['date']  # 날짜 지정
+                )
+                if saved:
+                    print(f"  저장: {stock['symbol']} ({day['date']})")
 
 
 def save_kr_stocks(results):

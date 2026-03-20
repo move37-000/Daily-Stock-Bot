@@ -32,17 +32,18 @@ def init_db():
     conn.close()
 
 
-def save_stock_price(symbol, name, market, close_price, change, change_pct):
+def save_stock_price(symbol, name, market, close_price, change, change_pct, collected_at=None):
     """주가 데이터 저장"""
     conn = _get_connection()
     cursor = conn.cursor()
 
-    today = datetime.now().strftime("%Y-%m-%d")
+    if collected_at is None:
+        collected_at = datetime.now().strftime("%Y-%m-%d")
 
     cursor.execute("""
         SELECT id FROM stock_prices 
         WHERE symbol = ? AND collected_at = ?
-    """, (symbol, today))
+    """, (symbol, collected_at))
 
     if cursor.fetchone():
         conn.close()
@@ -51,7 +52,7 @@ def save_stock_price(symbol, name, market, close_price, change, change_pct):
     cursor.execute("""
         INSERT INTO stock_prices (symbol, name, market, close_price, change, change_pct, collected_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (symbol, name, market, close_price, change, change_pct, today))
+    """, (symbol, name, market, close_price, change, change_pct, collected_at))
 
     conn.commit()
     conn.close()
