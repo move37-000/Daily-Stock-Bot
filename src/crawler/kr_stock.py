@@ -81,7 +81,8 @@ def fetch_kr_stocks(tickers):
                 'close': close,
                 'change': change,
                 'change_pct': change_pct,
-                'news': news
+                'news': news,
+                'history': daily_data
             })
 
         except Exception as e:

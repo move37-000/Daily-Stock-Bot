@@ -75,7 +75,7 @@ def generate_charts():
         history = get_stock_history(code, days=7)
         if len(history) >= 2:
             filepath = generate_weekly_chart(name, history)
-            charts.append({'symbol': name, 'path': filepath})
+            charts.append({'symbol': name, 'path': filepath})  # name으로 저장
             print(f"  차트 생성: {name}")
 
     return charts
@@ -106,7 +106,7 @@ def main():
     # 4. 리포트 생성
     print("리포트 생성 중...")
     try:
-        content = generate_report(us_results, kr_results)
+        content = generate_report(us_results, kr_results, charts)
         filename = save_report(content)
         print(f"리포트 저장 완료: {filename}")
     except Exception as e:

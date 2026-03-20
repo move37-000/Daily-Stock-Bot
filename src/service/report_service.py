@@ -37,7 +37,8 @@ def generate_report(us_results, kr_results, charts=None):
         if charts:
             chart = next((c for c in charts if c['symbol'] == stock['symbol']), None)
             if chart:
-                lines.append(f"\n![{stock['symbol']} 차트](charts/{stock['symbol']}_weekly.png)")
+                lines.append("")
+                lines.append(f"![{stock['symbol']} 차트](charts/{stock['symbol']}_weekly.png)")
 
         if stock.get('news'):
             lines.append("")
@@ -57,11 +58,12 @@ def generate_report(us_results, kr_results, charts=None):
         lines.append(f"- 종가: {stock['close']:,}원")
         lines.append(f"- 변동: {stock['change']:+,}원 ({stock['change_pct']:+.2f}%)")
 
-        # 차트 이미지 추가
+        # 차트 이미지 추가 (name으로 매칭)
         if charts:
             chart = next((c for c in charts if c['symbol'] == stock['name']), None)
             if chart:
-                lines.append(f"\n![{stock['name']} 차트](charts/{stock['name']}_weekly.png)")
+                lines.append("")
+                lines.append(f"![{stock['name']} 차트](charts/{stock['name']}_weekly.png)")
 
         if stock.get('news'):
             lines.append("")
