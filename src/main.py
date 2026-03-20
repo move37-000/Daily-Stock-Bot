@@ -1,7 +1,7 @@
 from src.config import US_TICKERS, KR_TICKERS, SLACK_WEBHOOK_URL
 from src.crawler import fetch_us_stocks, fetch_kr_stocks
-from src.service import generate_report, save_report, send_slack_message
-from src.repository import init_db, save_stock_price
+from src.service import generate_report, save_report, send_slack_message, generate_weekly_chart
+from src.repository import init_db, save_stock_price, get_stock_history
 
 
 def save_us_stocks(results):
@@ -34,6 +34,31 @@ def save_kr_stocks(results):
         print(f"  {status}: {stock['name']}")
 
 
+def generate_charts():
+    """주간 차트 생성"""
+    charts = []
+
+    # 미국 주식 차트
+    for symbol in US_TICKERS:
+        history = get_stock_history(symbol, days=7)
+        print(f"  {symbol} 히스토리: {len(history)}개")  # 이거 추가
+        if len(history) >= 2:
+            filepath = generate_weekly_chart(symbol, history)
+            charts.append({'symbol': symbol, 'path': filepath})
+            print(f"  차트 생성: {symbol}")
+
+    # 한국 주식 차트
+    for code, name in KR_TICKERS.items():
+        history = get_stock_history(code, days=7)
+        print(f"  {name} 히스토리: {len(history)}개")  # 이거 추가
+        if len(history) >= 2:
+            filepath = generate_weekly_chart(name, history)
+            charts.append({'symbol': name, 'path': filepath})
+            print(f"  차트 생성: {name}")
+
+    return charts
+
+
 def main():
     try:
         init_db()
@@ -51,7 +76,12 @@ def main():
     save_us_stocks(us_results)
     save_kr_stocks(kr_results)
 
-    # 3. 리포트 생성
+    # 3. 차트 생성
+    print("차트 생성 중...")
+    charts = generate_charts()
+    print(f"생성된 차트: {charts}")  # 이거 추가
+
+    # 4. 리포트 생성
     print("리포트 생성 중...")
     try:
         content = generate_report(us_results, kr_results)

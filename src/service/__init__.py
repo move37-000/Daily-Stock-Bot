@@ -1,2 +1,3 @@
 from src.service.notification_service import send_slack_message
 from src.service.report_service import generate_report, save_report
+from src.service.chart_service import generate_weekly_chart
