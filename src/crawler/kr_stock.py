@@ -1,7 +1,6 @@
 from pykrx import stock as krx
 from datetime import datetime, timedelta
 import requests
-from bs4 import BeautifulSoup
 
 
 def fetch_kr_news(code, limit=3):
@@ -29,10 +28,10 @@ def fetch_kr_news(code, limit=3):
         return []
 
 def fetch_kr_stocks(tickers):
-    """한국 주식 데이터 수집"""
+    """한국 주식 데이터 수집 (5일치)"""
     today = datetime.now()
     end_date = today - timedelta(days=1)
-    start_date = today - timedelta(days=7)
+    start_date = today - timedelta(days=10)  # 넉넉하게 10일 전부터
 
     start_str = start_date.strftime("%Y%m%d")
     end_str = end_date.strftime("%Y%m%d")
@@ -48,11 +47,27 @@ def fetch_kr_stocks(tickers):
             )
 
             if history.empty:
+                print(f"  [경고] {name}: 데이터 없음")
                 continue
 
+            # 최근 5일치만
+            history = history.tail(5)
+
+            # 전체 5일치 데이터 저장
+            daily_data = []
+            for date, row in history.iterrows():
+                daily_data.append({
+                    'date': date.strftime("%Y-%m-%d"),
+                    'close': row['종가'],
+                    'open': row['시가'],
+                    'high': row['고가'],
+                    'low': row['저가'],
+                    'volume': row['거래량']
+                })
+
+            # 최신 데이터
             latest = history.iloc[-1]
             prev = history.iloc[-2]
-
             close = latest['종가']
             change = close - prev['종가']
             change_pct = (change / prev['종가']) * 100
