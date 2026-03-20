@@ -1,7 +1,7 @@
 import yfinance as yf
 
 def fetch_us_stocks(tickers):
-    """미국 주식 데이터 수집"""
+    """미국 주식 데이터 수집 (5일치)"""
     results = []
 
     for symbol in tickers:
@@ -10,11 +10,24 @@ def fetch_us_stocks(tickers):
             history = ticker.history(period="5d")
 
             if history.empty:
+                print(f"  [경고] {symbol}: 데이터 없음")
                 continue
 
+            # 전체 5일치 데이터 저장
+            daily_data = []
+            for date, row in history.iterrows():
+                daily_data.append({
+                    'date': date.strftime("%Y-%m-%d"),
+                    'close': row['Close'],
+                    'open': row['Open'],
+                    'high': row['High'],
+                    'low': row['Low'],
+                    'volume': row['Volume']
+                })
+
+            # 최신 데이터 (어제)
             latest = history.iloc[-1]
             prev = history.iloc[-2]
-
             close = latest['Close']
             change = close - prev['Close']
             change_pct = (change / prev['Close']) * 100
@@ -37,7 +50,8 @@ def fetch_us_stocks(tickers):
                 'close': close,
                 'change': change,
                 'change_pct': change_pct,
-                'news': news
+                'news': news,
+                'history': daily_data  # 5일치 히스토리 추가
             })
 
         except Exception as e:

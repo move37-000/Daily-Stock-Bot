@@ -41,7 +41,6 @@ def generate_charts():
     # 미국 주식 차트
     for symbol in US_TICKERS:
         history = get_stock_history(symbol, days=7)
-        print(f"  {symbol} 히스토리: {len(history)}개")  # 이거 추가
         if len(history) >= 2:
             filepath = generate_weekly_chart(symbol, history)
             charts.append({'symbol': symbol, 'path': filepath})
@@ -50,7 +49,6 @@ def generate_charts():
     # 한국 주식 차트
     for code, name in KR_TICKERS.items():
         history = get_stock_history(code, days=7)
-        print(f"  {name} 히스토리: {len(history)}개")  # 이거 추가
         if len(history) >= 2:
             filepath = generate_weekly_chart(name, history)
             charts.append({'symbol': name, 'path': filepath})
