@@ -1,6 +1,6 @@
 from src.config import US_TICKERS, KR_TICKERS, SLACK_WEBHOOK_URL
 from src.crawler import fetch_us_stocks, fetch_kr_stocks
-from src.service import ReportService, send_slack_message, generate_weekly_chart
+from src.service import ReportService, send_slack_message, generate_chart_base64
 from src.repository import init_db, save_stock_price, get_stock_history
 
 # 아이콘 색상 로테이션
@@ -59,35 +59,8 @@ def save_kr_stocks(results):
                     print(f"  저장: {stock['name']} ({day['date']})")
 
 
-def generate_charts():
-    """주간 차트 생성"""
-    charts = []
-
-    for symbol in US_TICKERS:
-        history = get_stock_history(symbol, days=7)
-        if len(history) >= 2:
-            filepath = generate_weekly_chart(symbol, history)
-            charts.append({'symbol': symbol, 'path': filepath})
-            print(f"  차트 생성: {symbol}")
-
-    for code, name in KR_TICKERS.items():
-        history = get_stock_history(code, days=7)
-        if len(history) >= 2:
-            filepath = generate_weekly_chart(name, history)
-            charts.append({'symbol': name, 'path': filepath})
-            print(f"  차트 생성: {name}")
-
-    return charts
-
-
 def transform_us_data(us_results):
-    """
-    미국 크롤러 데이터 → 템플릿 데이터로 변환
-
-    크롤러 반환: {'symbol': 'AAPL', 'close': 228.44, 'change': 2.81, ...}
-    템플릿 기대: {'symbol': 'AAPL', 'name': 'Apple', 'price': '228.44', ...}
-    """
-    # 종목명 매핑 (필요하면 config.py로 분리)
+    """미국 크롤러 데이터 → 템플릿 데이터로 변환"""
     names = {
         'AAPL': 'Apple Inc.',
         'NVDA': 'NVIDIA Corp.',
@@ -109,40 +82,42 @@ def transform_us_data(us_results):
             "color": COLORS[i % len(COLORS)]
         })
 
-    # 시장 지수 (S&P 500, NASDAQ)는 별도 크롤링 필요
-    # 지금은 placeholder로 빈 값
+    # 첫 번째 종목의 히스토리로 차트 생성
+    chart_base64 = None
+    if us_results and us_results[0].get('history'):
+        chart_base64 = generate_chart_base64('US', us_results[0]['history'])
+
     us_market = {
         "sp500": {"price": "-", "change": 0, "change_pct": "-"},
         "nasdaq": {"price": "-", "change": 0, "change_pct": "-"},
-        "chart_base64": None
+        "chart_base64": chart_base64
     }
 
     return us_market, us_stocks
 
 
 def transform_kr_data(kr_results):
-    """
-    한국 크롤러 데이터 → 템플릿 데이터로 변환
-
-    크롤러 반환: {'code': '005930', 'name': '삼성전자', 'close': 71800, ...}
-    템플릿 기대: {'symbol': '삼성전자', 'name': '005930', 'price': '71,800', ...}
-    """
+    """한국 크롤러 데이터 → 템플릿 데이터로 변환"""
     kr_stocks = []
     for i, stock in enumerate(kr_results):
         kr_stocks.append({
-            "symbol": stock['name'],  # 종목명을 심볼로
-            "name": stock['code'],  # 종목코드를 name으로
+            "symbol": stock['name'],
+            "name": stock['code'],
             "price": f"{stock['close']:,}",
             "change": stock['change'],
             "change_pct": f"{abs(stock['change_pct']):.2f}",
             "color": COLORS[i % len(COLORS)]
         })
 
-    # 시장 지수 (KOSPI, KOSDAQ)는 별도 크롤링 필요
+    # 첫 번째 종목의 히스토리로 차트 생성
+    chart_base64 = None
+    if kr_results and kr_results[0].get('history'):
+        chart_base64 = generate_chart_base64('KR', kr_results[0]['history'])
+
     kr_market = {
         "kospi": {"price": "-", "change": 0, "change_pct": "-"},
         "kosdaq": {"price": "-", "change": 0, "change_pct": "-"},
-        "chart_base64": None
+        "chart_base64": chart_base64
     }
 
     return kr_market, kr_stocks
@@ -191,11 +166,6 @@ def main():
     print("DB 저장 중...")
     save_us_stocks(us_results)
     save_kr_stocks(kr_results)
-
-    # 3. 차트 생성
-    print("차트 생성 중...")
-    charts = generate_charts()
-    print(f"생성된 차트: {charts}")
 
     # 4. 데이터 변환 (크롤러 → 템플릿)
     print("데이터 변환 중...")

@@ -1,3 +1,3 @@
-from src.service.notification_service import send_slack_message
 from src.service.report_service import ReportService
-from src.service.chart_service import generate_weekly_chart
+from src.service.notification_service import send_slack_message
+from src.service.chart_service import generate_chart_base64
