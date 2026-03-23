@@ -1,6 +1,6 @@
 from src.config import US_TICKERS, KR_TICKERS, SLACK_WEBHOOK_URL
 from src.crawler import fetch_us_stocks, fetch_kr_stocks
-from src.service import ReportService, send_slack_message, generate_chart_base64
+from src.service import ReportService, send_slack_message
 from src.repository import init_db, save_stock_price, get_stock_history
 from src.crawler import fetch_us_stocks, fetch_kr_stocks, fetch_us_index, fetch_kr_index
 
@@ -73,15 +73,12 @@ def transform_us_data(us_results, us_index):
     }
 
     us_stocks = []
-    first_chart = None
-
     for i, stock in enumerate(us_results):
-        # 각 종목별 차트 생성
-        chart_base64 = None
+        # history 데이터 정리 (날짜 오름차순)
+        history = []
         if stock.get('history'):
-            chart_base64 = generate_chart_base64(stock['symbol'], stock['history'])
-            if first_chart is None:
-                first_chart = chart_base64
+            sorted_history = sorted(stock['history'], key=lambda h: h['date'])
+            history = [{"date": h['date'][5:], "price": h['close']} for h in sorted_history]
 
         us_stocks.append({
             "symbol": stock['symbol'],
@@ -90,13 +87,12 @@ def transform_us_data(us_results, us_index):
             "change": stock['change'],
             "change_pct": f"{abs(stock['change_pct']):.2f}",
             "color": COLORS[i % len(COLORS)],
-            "chart_base64": chart_base64
+            "history": history  # Chart.js용 데이터
         })
 
     us_market = {
         "sp500": us_index.get("sp500", {"price": "-", "change": 0, "change_pct": "-"}),
         "nasdaq": us_index.get("nasdaq", {"price": "-", "change": 0, "change_pct": "-"}),
-        "chart_base64": first_chart
     }
 
     return us_market, us_stocks
@@ -105,15 +101,12 @@ def transform_us_data(us_results, us_index):
 def transform_kr_data(kr_results, kr_index):
     """한국 크롤러 데이터 → 템플릿 데이터로 변환"""
     kr_stocks = []
-    first_chart = None
-
     for i, stock in enumerate(kr_results):
-        # 각 종목별 차트 생성
-        chart_base64 = None
+        # history 데이터 정리 (날짜 오름차순)
+        history = []
         if stock.get('history'):
-            chart_base64 = generate_chart_base64(stock['name'], stock['history'])
-            if first_chart is None:
-                first_chart = chart_base64
+            sorted_history = sorted(stock['history'], key=lambda h: h['date'])
+            history = [{"date": h['date'][5:], "price": h['close']} for h in sorted_history]
 
         kr_stocks.append({
             "symbol": stock['name'],
@@ -122,13 +115,12 @@ def transform_kr_data(kr_results, kr_index):
             "change": stock['change'],
             "change_pct": f"{abs(stock['change_pct']):.2f}",
             "color": COLORS[i % len(COLORS)],
-            "chart_base64": chart_base64
+            "history": history  # Chart.js용 데이터
         })
 
     kr_market = {
         "kospi": kr_index.get("kospi", {"price": "-", "change": 0, "change_pct": "-"}),
         "kosdaq": kr_index.get("kosdaq", {"price": "-", "change": 0, "change_pct": "-"}),
-        "chart_base64": first_chart
     }
 
     return kr_market, kr_stocks

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Stock Report - 2026-03-23</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #F2F2F7;
+      color: #1C1C1E;
+      font-size: 14px;
+      padding: 24px 16px 48px;
+      max-width: 480px;
+      margin: 0 auto;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 헤더 */
+    .header { margin-bottom: 28px; }
+    .header-date {
+      font-size: 12px;
+      color: #8E8E93;
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+    }
+    .header-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1C1C1E;
+      letter-spacing: -0.3px;
+    }
+
+    /* 섹션 라벨 */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #8E8E93;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin: 24px 0 10px;
+    }
+
+    /* 지수 그리드 */
+    .market-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .market-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 16px;
+      border: 0.5px solid rgba(0,0,0,0.06);
+    }
+    .market-label {
+      font-size: 12px;
+      color: #8E8E93;
+      margin-bottom: 6px;
+    }
+    .market-value {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1C1C1E;
+      margin-bottom: 4px;
+    }
+    .market-change { font-size: 13px; font-weight: 500; }
+    .change-up { color: #34C759; }
+    .change-down { color: #FF3B30; }
+    .change-neutral { color: #8E8E93; }
+
+    /* 차트 카드 */
+    .chart-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 0.5px solid rgba(0,0,0,0.06);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1C1C1E;
+    }
+    .chart-period {
+      font-size: 12px;
+      color: #8E8E93;
+    }
+    .chart-container {
+      position: relative;
+      height: 160px;
+    }
+
+    /* 종목 리스트 */
+    .stock-list {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 4px 0;
+      margin-bottom: 24px;
+      border: 0.5px solid rgba(0,0,0,0.06);
+    }
+    .stock-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .stock-row:not(:first-child) {
+      border-top: 0.5px solid rgba(0,0,0,0.06);
+    }
+    .stock-row:hover { background-color: #F9F9FB; }
+    .stock-row.active { background-color: rgba(52, 199, 89, 0.06); }
+    .stock-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .stock-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+    }
+    .icon-blue { background: linear-gradient(135deg, #007AFF, #5856D6); }
+    .icon-green { background: linear-gradient(135deg, #34C759, #30D158); }
+    .icon-purple { background: linear-gradient(135deg, #AF52DE, #BF5AF2); }
+    .icon-orange { background: linear-gradient(135deg, #FF9500, #FF9F0A); }
+    .icon-red { background: linear-gradient(135deg, #FF3B30, #FF453A); }
+    .stock-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1C1C1E;
+    }
+    .stock-fullname {
+      font-size: 11px;
+      color: #8E8E93;
+      margin-top: 2px;
+    }
+    .stock-right { text-align: right; }
+    .stock-price {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1C1C1E;
+    }
+    .stock-change {
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* 뉴스 */
+    .news-card {
+      display: flex;
+      gap: 12px;
+      padding: 14px;
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 0.5px solid rgba(0,0,0,0.06);
+      margin-bottom: 10px;
+    }
+    .news-bar {
+      width: 4px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .news-bar-blue { background: #007AFF; }
+    .news-bar-green { background: #34C759; }
+    .news-bar-purple { background: #AF52DE; }
+    .news-bar-orange { background: #FF9500; }
+    .news-bar-red { background: #FF3B30; }
+    .news-content { flex: 1; }
+    .news-headline {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #1C1C1E;
+      margin-bottom: 6px;
+    }
+    .news-source {
+      font-size: 11px;
+      color: #8E8E93;
+    }
+
+    /* AI 분석 */
+    .ai-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 24px;
+      border: 0.5px solid rgba(0,0,0,0.06);
+    }
+    .ai-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .ai-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1C1C1E;
+    }
+    .ai-badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+    .ai-comment {
+      font-size: 13px;
+      line-height: 1.65;
+      color: #3C3C43;
+    }
+
+    /* 푸터 */
+    .footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 11px;
+      color: #8E8E93;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="header-date">2026-03-23</div>
+    <div class="header-title">Daily Stock Report</div>
+  </div>
+
+  <!-- 미국 주식 섹션 -->
+  <div class="section-label">🇺🇸 US Market</div>
+
+  <div class="market-grid">
+    <div class="market-card">
+      <div class="market-label">S&P 500</div>
+      <div class="market-value">6,614.54</div>
+      
+        <div class="market-change change-up">
+          ▲ 1.66%
+        </div>
+      
+    </div>
+    <div class="market-card">
+      <div class="market-label">NASDAQ</div>
+      <div class="market-value">22,070.42</div>
+      
+        <div class="market-change change-up">
+          ▲ 1.95%
+        </div>
+      
+    </div>
+  </div>
+
+  <!-- 미국 차트 -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-title" id="us-chart-title">AAPL</span>
+      <span class="chart-period">5일</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="us-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- 미국 종목 리스트 -->
+  <div class="stock-list">
+    
+    <div class="stock-row active"
+         data-market="us"
+         data-symbol="AAPL"
+         data-history='[{"date": "03-17", "price": 254.22999572753906}, {"date": "03-18", "price": 249.94000244140625}, {"date": "03-19", "price": 248.9600067138672}, {"date": "03-20", "price": 247.99000549316406}, {"date": "03-23", "price": 252.83999633789062}]'
+         data-change="4.8499908447265625">
+      <div class="stock-info">
+        <div class="stock-icon icon-blue">AAPL</div>
+        <div>
+          <div class="stock-name">AAPL</div>
+          <div class="stock-fullname">Apple Inc.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$252.84</div>
+        <div class="stock-change change-up">
+          ▲ 1.96%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="MSFT"
+         data-history='[{"date": "03-17", "price": 399.4100036621094}, {"date": "03-18", "price": 391.7900085449219}, {"date": "03-19", "price": 389.0199890136719}, {"date": "03-20", "price": 381.8699951171875}, {"date": "03-23", "price": 385.32000732421875}]'
+         data-change="3.45001220703125">
+      <div class="stock-info">
+        <div class="stock-icon icon-green">MSFT</div>
+        <div>
+          <div class="stock-name">MSFT</div>
+          <div class="stock-fullname">Microsoft Corp.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$385.32</div>
+        <div class="stock-change change-up">
+          ▲ 0.90%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="GOOGL"
+         data-history='[{"date": "03-17", "price": 310.9200134277344}, {"date": "03-18", "price": 307.69000244140625}, {"date": "03-19", "price": 307.1300048828125}, {"date": "03-20", "price": 301.0}, {"date": "03-23", "price": 303.4949951171875}]'
+         data-change="2.4949951171875">
+      <div class="stock-info">
+        <div class="stock-icon icon-purple">GOOG</div>
+        <div>
+          <div class="stock-name">GOOGL</div>
+          <div class="stock-fullname">Alphabet Inc.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$303.49</div>
+        <div class="stock-change change-up">
+          ▲ 0.83%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="TSLA"
+         data-history='[{"date": "03-17", "price": 399.2699890136719}, {"date": "03-18", "price": 392.7799987792969}, {"date": "03-19", "price": 380.29998779296875}, {"date": "03-20", "price": 367.9599914550781}, {"date": "03-23", "price": 381.17999267578125}]'
+         data-change="13.220001220703125">
+      <div class="stock-info">
+        <div class="stock-icon icon-orange">TSLA</div>
+        <div>
+          <div class="stock-name">TSLA</div>
+          <div class="stock-fullname">Tesla Inc.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$381.18</div>
+        <div class="stock-change change-up">
+          ▲ 3.59%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="NVDA"
+         data-history='[{"date": "03-17", "price": 181.92999267578125}, {"date": "03-18", "price": 180.39999389648438}, {"date": "03-19", "price": 178.55999755859375}, {"date": "03-20", "price": 172.6999969482422}, {"date": "03-23", "price": 177.38499450683594}]'
+         data-change="4.68499755859375">
+      <div class="stock-info">
+        <div class="stock-icon icon-red">NVDA</div>
+        <div>
+          <div class="stock-name">NVDA</div>
+          <div class="stock-fullname">NVIDIA Corp.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$177.38</div>
+        <div class="stock-change change-up">
+          ▲ 2.71%
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- 한국 주식 섹션 -->
+  <div class="section-label">🇰🇷 KR Market</div>
+
+  <div class="market-grid">
+    <div class="market-card">
+      <div class="market-label">KOSPI</div>
+      <div class="market-value">5,405.75</div>
+      
+        <div class="market-change change-down">
+          ▼ 6.49%
+        </div>
+      
+    </div>
+    <div class="market-card">
+      <div class="market-label">KOSDAQ</div>
+      <div class="market-value">1,096.89</div>
+      
+        <div class="market-change change-down">
+          ▼ 5.56%
+        </div>
+      
+    </div>
+  </div>
+
+  <!-- 한국 차트 -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-title" id="kr-chart-title">삼성전자</span>
+      <span class="chart-period">5일</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="kr-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- 한국 종목 리스트 -->
+  <div class="stock-list">
+    
+    <div class="stock-row active"
+         data-market="kr"
+         data-symbol="삼성전자"
+         data-history='[{"date": "03-16", "price": 188700.0}, {"date": "03-17", "price": 193900.0}, {"date": "03-18", "price": 208500.0}, {"date": "03-19", "price": 200500.0}, {"date": "03-20", "price": 199400.0}]'
+         data-change="-1100.0">
+      <div class="stock-info">
+        <div class="stock-icon icon-blue">삼성전자</div>
+        <div>
+          <div class="stock-name">삼성전자</div>
+          <div class="stock-fullname">005930</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">199,400원</div>
+        <div class="stock-change change-down">
+          ▼ 0.55%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="kr"
+         data-symbol="SK하이닉스"
+         data-history='[{"date": "03-16", "price": 974000.0}, {"date": "03-17", "price": 970000.0}, {"date": "03-18", "price": 1056000.0}, {"date": "03-19", "price": 1013000.0}, {"date": "03-20", "price": 1007000.0}]'
+         data-change="-6000.0">
+      <div class="stock-info">
+        <div class="stock-icon icon-green">SK하이</div>
+        <div>
+          <div class="stock-name">SK하이닉스</div>
+          <div class="stock-fullname">000660</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">1,007,000원</div>
+        <div class="stock-change change-down">
+          ▼ 0.59%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="kr"
+         data-symbol="카카오"
+         data-history='[{"date": "03-16", "price": 50200.0}, {"date": "03-17", "price": 51300.0}, {"date": "03-18", "price": 51500.0}, {"date": "03-19", "price": 50000.0}, {"date": "03-20", "price": 50000.0}]'
+         data-change="0.0">
+      <div class="stock-info">
+        <div class="stock-icon icon-purple">카카오</div>
+        <div>
+          <div class="stock-name">카카오</div>
+          <div class="stock-fullname">035720</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">50,000원</div>
+        <div class="stock-change change-neutral">
+          - 0.00%
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- 뉴스 섹션 -->
+  <div class="section-label">📰 News</div>
+  
+  
+  <div class="news-card">
+    <div class="news-bar news-bar-blue"></div>
+    <div class="news-content">
+      <div class="news-headline">Formula 1 CEO on shorter races, Max Verstappen, new regulations, and Apple</div>
+      <div class="news-source">Yahoo Finance</div>
+    </div>
+  </div>
+  
+  <div class="news-card">
+    <div class="news-bar news-bar-green"></div>
+    <div class="news-content">
+      <div class="news-headline">Chip Stocks Pop as Trump Hits Pause on Iran Strikes</div>
+      <div class="news-source">GuruFocus.com</div>
+    </div>
+  </div>
+  
+  <div class="news-card">
+    <div class="news-bar news-bar-purple"></div>
+    <div class="news-content">
+      <div class="news-headline">Magnificent Seven Correlation Turns Negative as Valuations Drop Below 25x</div>
+      <div class="news-source">GuruFocus.com</div>
+    </div>
+  </div>
+  
+  <div class="news-card">
+    <div class="news-bar news-bar-orange"></div>
+    <div class="news-content">
+      <div class="news-headline">Tesla Stock Rises As Elon Musk Announces Terafab Project</div>
+      <div class="news-source">Investor&#39;s Business Daily</div>
+    </div>
+  </div>
+  
+  <div class="news-card">
+    <div class="news-bar news-bar-red"></div>
+    <div class="news-content">
+      <div class="news-headline">Chip Stocks Pop as Trump Hits Pause on Iran Strikes</div>
+      <div class="news-source">GuruFocus.com</div>
+    </div>
+  </div>
+  
+  <div class="news-card">
+    <div class="news-bar news-bar-blue"></div>
+    <div class="news-content">
+      <div class="news-headline">&#39;환율 뉴노멀&#39; 도대체 얼마?...1,517원도 뚫렸다</div>
+      <div class="news-source">네이버 금융</div>
+    </div>
+  </div>
+  
+  
+
+  <!-- AI 시황 분석 -->
+  
+
+  <!-- 푸터 -->
+  <div class="footer">
+    Daily Stock Bot · GitHub Actions<br>
+    데이터 기준: 2026-03-23 22:49 KST<br>
+    본 리포트는 투자 권유가 아닙니다
+  </div>
+
+  <script>
+    // 차트 인스턴스 저장
+    let usChart = null;
+    let krChart = null;
+
+    // 차트 생성 함수
+function createChart(canvasId, labels, data, isUp) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const color = isUp ? '#34C759' : '#FF3B30';
+
+  // 그라데이션 생성
+  const gradient = ctx.createLinearGradient(0, 0, 0, 160);
+  gradient.addColorStop(0, isUp ? 'rgba(52, 199, 89, 0.25)' : 'rgba(255, 59, 48, 0.25)');
+  gradient.addColorStop(1, isUp ? 'rgba(52, 199, 89, 0)' : 'rgba(255, 59, 48, 0)');
+
+  // 마지막 포인트만 표시하는 배열
+  const pointRadiusArray = data.map((_, i) => i === data.length - 1 ? 5 : 0);
+
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        borderColor: color,
+        borderWidth: 2.5,
+        fill: true,
+        backgroundColor: gradient,
+        tension: 0.4,
+        pointRadius: pointRadiusArray,
+        pointBackgroundColor: color,
+        pointBorderColor: color,
+        pointBorderWidth: 0,
+        pointHoverRadius: 0,
+        pointHoverBackgroundColor: 'transparent',
+        pointHoverBorderColor: 'transparent',
+        pointHoverBorderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1C1C1E',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          titleFont: { family: 'Pretendard', size: 12, weight: '500' },
+          bodyFont: { family: 'Pretendard', size: 14, weight: '600' },
+          padding: 10,
+          cornerRadius: 8,
+          displayColors: false,
+          callbacks: {
+            title: function(context) {
+              return context[0].label;
+            },
+            label: function(context) {
+              const value = context.parsed.y;
+              return value >= 1000 ? value.toLocaleString() : value.toFixed(2);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: {
+            color: '#8E8E93',
+            font: { family: 'Pretendard', size: 12 },
+            padding: 8
+          }
+        },
+        y: {
+          display: false,
+          beginAtZero: false
+        }
+      }
+    }
+  });
+
+  return chart;
+}
+
+    // 차트 업데이트 함수
+    function updateChart(chart, labels, data, isUp) {
+  const ctx = chart.ctx;
+  const color = isUp ? '#34C759' : '#FF3B30';
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 160);
+  gradient.addColorStop(0, isUp ? 'rgba(52, 199, 89, 0.25)' : 'rgba(255, 59, 48, 0.25)');
+  gradient.addColorStop(1, isUp ? 'rgba(52, 199, 89, 0)' : 'rgba(255, 59, 48, 0)');
+
+  chart.data.labels = labels;
+  chart.data.datasets[0].data = data;
+  chart.data.datasets[0].borderColor = color;
+  chart.data.datasets[0].backgroundColor = gradient;
+  chart.data.datasets[0].pointRadius = data.map((_, i) => i === data.length - 1 ? 5 : 0);
+  chart.data.datasets[0].pointBackgroundColor = color;
+  chart.data.datasets[0].pointHoverBackgroundColor = color;
+  chart.update();
+}
+
+    // 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+      // 첫 번째 종목 데이터로 차트 초기화
+      const firstUs = document.querySelector('.stock-row[data-market="us"]');
+      const firstKr = document.querySelector('.stock-row[data-market="kr"]');
+
+      if (firstUs) {
+        const history = JSON.parse(firstUs.dataset.history);
+        const labels = history.map(h => h.date);
+        const data = history.map(h => h.price);
+        const isUp = parseFloat(firstUs.dataset.change) >= 0;
+        usChart = createChart('us-chart', labels, data, isUp);
+      }
+
+      if (firstKr) {
+        const history = JSON.parse(firstKr.dataset.history);
+        const labels = history.map(h => h.date);
+        const data = history.map(h => h.price);
+        const isUp = parseFloat(firstKr.dataset.change) >= 0;
+        krChart = createChart('kr-chart', labels, data, isUp);
+      }
+
+      // 종목 클릭 이벤트
+      document.querySelectorAll('.stock-row').forEach(row => {
+        row.addEventListener('click', function() {
+          const market = this.dataset.market;
+          const symbol = this.dataset.symbol;
+          const history = JSON.parse(this.dataset.history);
+          const isUp = parseFloat(this.dataset.change) >= 0;
+
+          if (history.length === 0) return;
+
+          const labels = history.map(h => h.date);
+          const data = history.map(h => h.price);
+
+          if (market === 'us' && usChart) {
+            document.getElementById('us-chart-title').textContent = symbol;
+            updateChart(usChart, labels, data, isUp);
+          } else if (market === 'kr' && krChart) {
+            document.getElementById('kr-chart-title').textContent = symbol;
+            updateChart(krChart, labels, data, isUp);
+          }
+
+          // active 클래스 토글
+          document.querySelectorAll(`.stock-row[data-market="${market}"]`).forEach(r => r.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
