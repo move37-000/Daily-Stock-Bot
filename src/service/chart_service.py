@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 import platform
 import base64
 from io import BytesIO
@@ -13,6 +14,13 @@ else:
 
 plt.rcParams['axes.unicode_minus'] = False
 
+def _format_price(value, pos):
+    """Y축 금액 포맷터 (천 단위 콤마)"""
+    if value >= 1000:
+        return f'{value:,.0f}'
+    else:
+        return f'{value:.2f}'
+
 
 def generate_chart_base64(symbol, history):
     """
@@ -21,6 +29,7 @@ def generate_chart_base64(symbol, history):
     Args:
         symbol: 종목 심볼 (로깅용)
         history: [{'date': '2025-01-15', 'close': 228.44}, ...] 형태
+                 날짜 오름차순 (오래된 날짜 → 최신 날짜)
 
     Returns:
         base64 인코딩된 PNG 이미지 문자열, 데이터 부족 시 None
@@ -28,21 +37,29 @@ def generate_chart_base64(symbol, history):
     if len(history) < 2:
         return None
 
-    dates = [h['date'] for h in reversed(history)]
-    prices = [h['close'] for h in reversed(history)]
+    # 날짜 오름차순 정렬 (왼쪽=과거, 오른쪽=최신)
+    sorted_history = sorted(history, key=lambda h: h['date'])
+
+    dates = [h['date'] for h in sorted_history]
+    prices = [h['close'] for h in sorted_history]
 
     fig, ax = plt.subplots(figsize=(6, 3))
 
     x = range(len(dates))
     ax.plot(x, prices, marker='o', linewidth=2, markersize=4, color='#2563eb')
 
+    # 시작 대비 상승/하락 색상
     if prices[-1] >= prices[0]:
         ax.fill_between(x, prices, prices[0], alpha=0.3, color='#22c55e')
     else:
         ax.fill_between(x, prices, prices[0], alpha=0.3, color='#ef4444')
 
+    # X축: 날짜 (MM-DD 형식)
     ax.set_xticks(x)
     ax.set_xticklabels([d[5:] for d in dates], fontsize=8)
+
+    # Y축: 천 단위 콤마 포맷
+    ax.yaxis.set_major_formatter(FuncFormatter(_format_price))
     ax.tick_params(axis='y', labelsize=8)
 
     ax.set_xlabel("")

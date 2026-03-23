@@ -110,6 +110,8 @@
             color: #8E8E93;
             line-height: 1.6;
         }
+
+        .change-neutral { color: #8E8E93; }
     </style>
 </head>
 <body>
@@ -123,19 +125,29 @@
     <div class="section-label">🇺🇸 US Market</div>
 
     <div class="market-summary-grid">
+        <!-- S&P 500 -->
         <div class="market-card">
             <div class="market-card-label">S&P 500</div>
             <div class="market-card-value">{{ us_market.sp500.price }}</div>
-            <div class="stock-change {{ 'change-up' if us_market.sp500.change >= 0 else 'change-down' }}">
-                {{ '▲' if us_market.sp500.change >= 0 else '▼' }} {{ us_market.sp500.change_pct }}%
-            </div>
+            {% if us_market.sp500.change_pct != '-' %}
+                <div class="stock-change {% if us_market.sp500.change > 0 %}change-up{% elif us_market.sp500.change < 0 %}change-down{% else %}change-neutral{% endif %}">
+                    {% if us_market.sp500.change > 0 %}▲{% elif us_market.sp500.change < 0 %}▼{% else %}-{% endif %} {{ us_market.sp500.change_pct }}%
+                </div>
+            {% else %}
+                <div class="stock-change change-neutral">데이터 없음</div>
+            {% endif %}
         </div>
+        <!-- NASDAQ -->
         <div class="market-card">
             <div class="market-card-label">NASDAQ</div>
             <div class="market-card-value">{{ us_market.nasdaq.price }}</div>
-            <div class="stock-change {{ 'change-up' if us_market.nasdaq.change >= 0 else 'change-down' }}">
-                {{ '▲' if us_market.nasdaq.change >= 0 else '▼' }} {{ us_market.nasdaq.change_pct }}%
-            </div>
+            {% if us_market.nasdaq.change_pct != '-' %}
+                <div class="stock-change {% if us_market.nasdaq.change > 0 %}change-up{% elif us_market.nasdaq.change < 0 %}change-down{% else %}change-neutral{% endif %}">
+                    {% if us_market.nasdaq.change > 0 %}▲{% elif us_market.nasdaq.change < 0 %}▼{% else %}-{% endif %} {{ us_market.nasdaq.change_pct }}%
+                </div>
+            {% else %}
+                <div class="stock-change change-neutral">데이터 없음</div>
+            {% endif %}
         </div>
     </div>
 
@@ -161,8 +173,8 @@
                 </div>
                 <div class="stock-right">
                     <div class="stock-price">${{ stock.price }}</div>
-                    <div class="stock-change {{ 'change-up' if stock.change >= 0 else 'change-down' }}">
-                        {{ '▲' if stock.change >= 0 else '▼' }} {{ stock.change_pct }}%
+                    <div class="stock-change {% if stock.change > 0 %}change-up{% elif stock.change < 0 %}change-down{% else %}change-neutral{% endif %}">
+                        {% if stock.change > 0 %}▲{% elif stock.change < 0 %}▼{% else %}-{% endif %} {{ stock.change_pct }}%
                     </div>
                 </div>
             </div>
@@ -173,19 +185,29 @@
     <div class="section-label">🇰🇷 KR Market</div>
 
     <div class="market-summary-grid">
+        <!-- KOSPI -->
         <div class="market-card">
             <div class="market-card-label">KOSPI</div>
             <div class="market-card-value">{{ kr_market.kospi.price }}</div>
-            <div class="stock-change {{ 'change-up' if kr_market.kospi.change >= 0 else 'change-down' }}">
-                {{ '▲' if kr_market.kospi.change >= 0 else '▼' }} {{ kr_market.kospi.change_pct }}%
-            </div>
+            {% if kr_market.kospi.change_pct != '-' %}
+                <div class="stock-change {% if kr_market.kospi.change > 0 %}change-up{% elif kr_market.kospi.change < 0 %}change-down{% else %}change-neutral{% endif %}">
+                    {% if kr_market.kospi.change > 0 %}▲{% elif kr_market.kospi.change < 0 %}▼{% else %}-{% endif %} {{ kr_market.kospi.change_pct }}%
+                </div>
+            {% else %}
+                <div class="stock-change change-neutral">데이터 없음</div>
+            {% endif %}
         </div>
+        <!-- KOSDAQ -->
         <div class="market-card">
             <div class="market-card-label">KOSDAQ</div>
             <div class="market-card-value">{{ kr_market.kosdaq.price }}</div>
-            <div class="stock-change {{ 'change-up' if kr_market.kosdaq.change >= 0 else 'change-down' }}">
-                {{ '▲' if kr_market.kosdaq.change >= 0 else '▼' }} {{ kr_market.kosdaq.change_pct }}%
-            </div>
+            {% if kr_market.kosdaq.change_pct != '-' %}
+                <div class="stock-change {% if kr_market.kosdaq.change > 0 %}change-up{% elif kr_market.kosdaq.change < 0 %}change-down{% else %}change-neutral{% endif %}">
+                    {% if kr_market.kosdaq.change > 0 %}▲{% elif kr_market.kosdaq.change < 0 %}▼{% else %}-{% endif %} {{ kr_market.kosdaq.change_pct }}%
+                </div>
+            {% else %}
+                <div class="stock-change change-neutral">데이터 없음</div>
+            {% endif %}
         </div>
     </div>
 
@@ -210,9 +232,9 @@
                     </div>
                 </div>
                 <div class="stock-right">
-                    <div class="stock-price">₩{{ stock.price }}</div>
-                    <div class="stock-change {{ 'change-up' if stock.change >= 0 else 'change-down' }}">
-                        {{ '▲' if stock.change >= 0 else '▼' }} {{ stock.change_pct }}%
+                    <div class="stock-price">{{ stock.price }}원</div>
+                    <div class="stock-change {% if stock.change > 0 %}change-up{% elif stock.change < 0 %}change-down{% else %}change-neutral{% endif %}">
+                        {% if stock.change > 0 %}▲{% elif stock.change < 0 %}▼{% else %}-{% endif %} {{ stock.change_pct }}%
                     </div>
                 </div>
             </div>

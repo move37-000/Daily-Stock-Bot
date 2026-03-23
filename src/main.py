@@ -73,16 +73,18 @@ def transform_us_data(us_results):
 
     us_stocks = []
     for i, stock in enumerate(us_results):
+        change = stock['change']
+        change_pct = stock['change_pct']
+
         us_stocks.append({
             "symbol": stock['symbol'],
             "name": names.get(stock['symbol'], stock['symbol']),
-            "price": f"{stock['close']:,.2f}",
-            "change": stock['change'],
-            "change_pct": f"{abs(stock['change_pct']):.2f}",
+            "price": f"{stock['close']:,.2f}",  # $228.44
+            "change": change,
+            "change_pct": f"{abs(change_pct):.2f}",
             "color": COLORS[i % len(COLORS)]
         })
 
-    # 첫 번째 종목의 히스토리로 차트 생성
     chart_base64 = None
     if us_results and us_results[0].get('history'):
         chart_base64 = generate_chart_base64('US', us_results[0]['history'])
@@ -100,16 +102,18 @@ def transform_kr_data(kr_results):
     """한국 크롤러 데이터 → 템플릿 데이터로 변환"""
     kr_stocks = []
     for i, stock in enumerate(kr_results):
+        change = stock['change']
+        change_pct = stock['change_pct']
+
         kr_stocks.append({
             "symbol": stock['name'],
             "name": stock['code'],
-            "price": f"{stock['close']:,}",
-            "change": stock['change'],
-            "change_pct": f"{abs(stock['change_pct']):.2f}",
+            "price": f"{int(stock['close']):,}",
+            "change": change,
+            "change_pct": f"{abs(change_pct):.2f}",
             "color": COLORS[i % len(COLORS)]
         })
 
-    # 첫 번째 종목의 히스토리로 차트 생성
     chart_base64 = None
     if kr_results and kr_results[0].get('history'):
         chart_base64 = generate_chart_base64('KR', kr_results[0]['history'])
