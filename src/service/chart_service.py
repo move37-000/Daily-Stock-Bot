@@ -26,7 +26,7 @@ def _format_price(value, pos):
 
 def generate_chart_base64(symbol, history):
     """
-    주간 차트를 base64 문자열로 반환 (부드러운 곡선 + 그라데이션)
+    주간 차트를 base64 문자열로 반환
     """
     if len(history) < 2:
         return None
@@ -42,20 +42,8 @@ def generate_chart_base64(symbol, history):
     fig.patch.set_facecolor('white')
     ax.set_facecolor('white')
 
-    x = np.array(range(len(dates)))
+    x = np.arange(len(dates))
     y = np.array(prices)
-
-    # 부드러운 곡선 (scipy 없이 numpy interpolation)
-    if len(x) >= 3:
-        x_smooth = np.linspace(x.min(), x.max(), 100)
-        y_smooth = np.interp(x_smooth, x, y)
-        # 간단한 smoothing
-        kernel_size = 5
-        kernel = np.ones(kernel_size) / kernel_size
-        y_smooth = np.convolve(y_smooth, kernel, mode='same')
-    else:
-        x_smooth = x
-        y_smooth = y
 
     # 색상 결정 (상승: 초록, 하락: 빨강)
     if prices[-1] >= prices[0]:
@@ -65,15 +53,30 @@ def generate_chart_base64(symbol, history):
         line_color = '#FF3B30'
         fill_color = '#FF3B30'
 
+    # 곡선 보간 (Cubic spline 느낌)
+    if len(x) >= 3:
+        from scipy.interpolate import PchipInterpolator
+        x_smooth = np.linspace(x.min(), x.max(), 200)
+        pchip = PchipInterpolator(x, y)
+        y_smooth = pchip(x_smooth)
+    else:
+        x_smooth = x
+        y_smooth = y
+
+    # Y축 범위 계산
+    y_min = min(prices)
+    y_max = max(prices)
+    y_padding = (y_max - y_min) * 0.15 if y_max != y_min else y_max * 0.1
+    baseline = y_min - y_padding
+
     # 그라데이션 영역 채우기
-    ax.fill_between(x_smooth, y_smooth, min(y_smooth) - (max(y_smooth) - min(y_smooth)) * 0.1,
-                    alpha=0.15, color=fill_color)
+    ax.fill_between(x_smooth, y_smooth, baseline, alpha=0.15, color=fill_color)
 
     # 부드러운 곡선 그리기
     ax.plot(x_smooth, y_smooth, color=line_color, linewidth=2.5, solid_capstyle='round')
 
     # 마지막 포인트에 점 표시
-    ax.scatter([x[-1]], [prices[-1]], color=line_color, s=30, zorder=5)
+    ax.scatter([x[-1]], [prices[-1]], color=line_color, s=40, zorder=5)
 
     # 테두리 제거
     ax.spines['top'].set_visible(False)
@@ -81,22 +84,23 @@ def generate_chart_base64(symbol, history):
     ax.spines['left'].set_visible(False)
     ax.spines['bottom'].set_visible(False)
 
-    # X축 설정
+    # X축 설정 (실제 데이터 포인트 위치에만 라벨)
     ax.set_xticks(x)
     ax.set_xticklabels([d[5:] for d in dates], fontsize=9, color='#8E8E93')
     ax.tick_params(axis='x', length=0, pad=8)
 
     # Y축 설정
+    ax.set_ylim(baseline, y_max + y_padding)
     ax.yaxis.set_major_formatter(FuncFormatter(_format_price))
     ax.tick_params(axis='y', length=0, labelsize=9, colors='#8E8E93', pad=8)
 
-    # Y축 그리드
-    ax.yaxis.grid(True, linestyle='-', alpha=0.1, color='#8E8E93')
+    # Y축 그리드 제거 (깔끔하게)
+    ax.yaxis.grid(False)
     ax.xaxis.grid(False)
 
     # 여백 조정
     plt.tight_layout()
-    plt.subplots_adjust(left=0.1, right=0.98, top=0.95, bottom=0.15)
+    plt.subplots_adjust(left=0.12, right=0.95, top=0.95, bottom=0.15)
 
     # base64 변환
     buffer = BytesIO()
