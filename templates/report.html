@@ -112,3 +112,146 @@
         }
     </style>
 </head>
+<body>
+    <!-- 헤더 -->
+    <div class="header">
+        <div class="header-date">{{ report_date }}</div>
+        <div class="header-title">Daily Stock Report</div>
+    </div>
+
+    <!-- 미국 주식 섹션 -->
+    <div class="section-label">🇺🇸 US Market</div>
+
+    <div class="market-summary-grid">
+        <div class="market-card">
+            <div class="market-card-label">S&P 500</div>
+            <div class="market-card-value">{{ us_market.sp500.price }}</div>
+            <div class="stock-change {{ 'change-up' if us_market.sp500.change >= 0 else 'change-down' }}">
+                {{ '▲' if us_market.sp500.change >= 0 else '▼' }} {{ us_market.sp500.change_pct }}%
+            </div>
+        </div>
+        <div class="market-card">
+            <div class="market-card-label">NASDAQ</div>
+            <div class="market-card-value">{{ us_market.nasdaq.price }}</div>
+            <div class="stock-change {{ 'change-up' if us_market.nasdaq.change >= 0 else 'change-down' }}">
+                {{ '▲' if us_market.nasdaq.change >= 0 else '▼' }} {{ us_market.nasdaq.change_pct }}%
+            </div>
+        </div>
+    </div>
+
+    <!-- 미국 차트 (base64 이미지) -->
+    {% if us_market.chart_base64 %}
+        <div class="card">
+            <div class="chart-container">
+                <img src="data:image/png;base64,{{ us_market.chart_base64 }}" width="100%" alt="US Market Chart">
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- 미국 종목 리스트 -->
+    <div class="card">
+        {% for stock in us_stocks %}
+            <div class="stock-row">
+                <div class="stock-info">
+                    <div class="stock-icon icon-{{ stock.color }}">{{ stock.symbol[:4] }}</div>
+                    <div>
+                        <div class="stock-name">{{ stock.symbol }}</div>
+                        <div class="stock-fullname">{{ stock.name }}</div>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price">${{ stock.price }}</div>
+                    <div class="stock-change {{ 'change-up' if stock.change >= 0 else 'change-down' }}">
+                        {{ '▲' if stock.change >= 0 else '▼' }} {{ stock.change_pct }}%
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- 한국 주식 섹션 -->
+    <div class="section-label">🇰🇷 KR Market</div>
+
+    <div class="market-summary-grid">
+        <div class="market-card">
+            <div class="market-card-label">KOSPI</div>
+            <div class="market-card-value">{{ kr_market.kospi.price }}</div>
+            <div class="stock-change {{ 'change-up' if kr_market.kospi.change >= 0 else 'change-down' }}">
+                {{ '▲' if kr_market.kospi.change >= 0 else '▼' }} {{ kr_market.kospi.change_pct }}%
+            </div>
+        </div>
+        <div class="market-card">
+            <div class="market-card-label">KOSDAQ</div>
+            <div class="market-card-value">{{ kr_market.kosdaq.price }}</div>
+            <div class="stock-change {{ 'change-up' if kr_market.kosdaq.change >= 0 else 'change-down' }}">
+                {{ '▲' if kr_market.kosdaq.change >= 0 else '▼' }} {{ kr_market.kosdaq.change_pct }}%
+            </div>
+        </div>
+    </div>
+
+    <!-- 한국 차트 (base64 이미지) -->
+    {% if kr_market.chart_base64 %}
+        <div class="card">
+            <div class="chart-container">
+                <img src="data:image/png;base64,{{ kr_market.chart_base64 }}" width="100%" alt="KR Market Chart">
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- 한국 종목 리스트 -->
+    <div class="card">
+        {% for stock in kr_stocks %}
+            <div class="stock-row">
+                <div class="stock-info">
+                    <div class="stock-icon icon-{{ stock.color }}">{{ stock.symbol[:4] }}</div>
+                    <div>
+                        <div class="stock-name">{{ stock.symbol }}</div>
+                        <div class="stock-fullname">{{ stock.name }}</div>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price">₩{{ stock.price }}</div>
+                    <div class="stock-change {{ 'change-up' if stock.change >= 0 else 'change-down' }}">
+                        {{ '▲' if stock.change >= 0 else '▼' }} {{ stock.change_pct }}%
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <!-- 뉴스 섹션 -->
+    <div class="section-label">📰 News</div>
+    <div class="card">
+        {% for news in news_list %}
+            <div class="news-item">
+                <div class="news-source">{{ news.source }} · {{ news.time }}</div>
+                <div class="news-headline">{{ news.headline }}</div>
+            </div>
+        {% endfor %}
+
+        {% if news_list | length == 0 %}
+            <div class="news-item">
+                <div class="news-headline" style="color: #8E8E93;">뉴스를 불러올 수 없습니다.</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- AI 시황 분석 (선택) -->
+    {% if ai_comment %}
+        <div class="section-label">🤖 AI Analysis</div>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 600;">AI 시황 분석</span>
+                <span class="ai-badge">✦ Claude</span>
+            </div>
+            <div class="ai-comment">{{ ai_comment }}</div>
+        </div>
+    {% endif %}
+
+    <!-- 푸터 -->
+    <div class="footer">
+        Daily Stock Bot · GitHub Actions<br>
+        데이터 기준: {{ generated_at }}<br>
+        본 리포트는 투자 권유가 아닙니다
+    </div>
+</body>
+</html>
