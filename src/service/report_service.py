@@ -1,90 +1,75 @@
+from jinja2 import Environment, FileSystemLoader
+from pathlib import Path
 from datetime import datetime
-import os
 
 
-def generate_report(us_results, kr_results, charts=None):
-    """마크다운 리포트 생성"""
-    today = datetime.now().strftime("%Y-%m-%d")
+class ReportService:
+    """HTML 리포트 생성 서비스"""
 
-    lines = [
-        f"# 일일 주식 리포트 ({today})",
-        "",
-        "## 📊 요약",
-        ""
-    ]
+    def __init__(self):
+        # 프로젝트 루트 경로 계산
+        self._project_root = Path(__file__).parent.parent.parent
 
-    # 상승/하락 카운트
-    us_up = sum(1 for s in us_results if s['change'] >= 0)
-    us_down = len(us_results) - us_up
-    kr_up = sum(1 for s in kr_results if s['change'] >= 0)
-    kr_down = len(kr_results) - kr_up
+        # Jinja2 환경 설정
+        self._env = Environment(
+            loader=FileSystemLoader(self._project_root / "templates"),
+            autoescape=True
+        )
 
-    lines.append(f"- 🇺🇸 미국: {us_up}상승 {us_down}하락")
-    lines.append(f"- 🇰🇷 한국: {kr_up}상승 {kr_down}하락")
-    lines.append("")
+    def generate_report(
+            self,
+            us_market: dict,
+            kr_market: dict,
+            us_stocks: list,
+            kr_stocks: list,
+            news_list: list,
+            ai_comment: str = None
+    ) -> str:
+        """
+        HTML 리포트 생성
 
-    # 미국 주식
-    lines.append("## 🇺🇸 미국 주식")
-    lines.append("")
+        Args:
+            us_market: 미국 시장 지수 데이터
+            kr_market: 한국 시장 지수 데이터
+            us_stocks: 미국 종목 리스트
+            kr_stocks: 한국 종목 리스트
+            news_list: 뉴스 헤드라인 리스트
+            ai_comment: AI 시황 분석 (선택)
 
-    for stock in us_results:
-        emoji = "🟢" if stock['change'] >= 0 else "🔴"
-        lines.append(f"### {emoji} {stock['symbol']}")
-        lines.append(f"- 종가: ${stock['close']:.2f}")
-        lines.append(f"- 변동: ${stock['change']:+.2f} ({stock['change_pct']:+.2f}%)")
+        Returns:
+            생성된 HTML 파일 경로
+        """
+        # 템플릿 로드
+        template = self._env.get_template("report.html")
 
-        # 차트 이미지 추가
-        if charts:
-            chart = next((c for c in charts if c['symbol'] == stock['symbol']), None)
-            if chart:
-                lines.append("")
-                lines.append(f"![{stock['symbol']} 차트](charts/{stock['symbol']}_weekly.png)")
+        # 현재 시간
+        now = datetime.now()
 
-        if stock.get('news'):
-            lines.append("")
-            lines.append("**관련 뉴스:**")
-            for news in stock['news']:
-                lines.append(f"- [{news['title']}]({news['link']})")
+        # 데이터 바인딩
+        html_content = template.render(
+            report_date=now.strftime("%Y-%m-%d"),
+            generated_at=now.strftime("%Y-%m-%d %H:%M KST"),
+            us_market=us_market,
+            kr_market=kr_market,
+            us_stocks=us_stocks,
+            kr_stocks=kr_stocks,
+            news_list=news_list,
+            ai_comment=ai_comment
+        )
 
-        lines.append("")
+        # 파일 저장
+        output_path = self._save_report(html_content, now)
 
-    # 한국 주식
-    lines.append("## 🇰🇷 한국 주식")
-    lines.append("")
+        return output_path
 
-    for stock in kr_results:
-        emoji = "🟢" if stock['change'] >= 0 else "🔴"
-        lines.append(f"### {emoji} {stock['name']} ({stock['code']})")
-        lines.append(f"- 종가: {stock['close']:,}원")
-        lines.append(f"- 변동: {stock['change']:+,}원 ({stock['change_pct']:+.2f}%)")
+    def _save_report(self, content: str, timestamp: datetime) -> str:
+        """리포트 파일 저장"""
+        reports_dir = self._project_root / "reports"
+        reports_dir.mkdir(exist_ok=True)
 
-        # 차트 이미지 추가 (name으로 매칭)
-        if charts:
-            chart = next((c for c in charts if c['symbol'] == stock['name']), None)
-            if chart:
-                lines.append("")
-                lines.append(f"![{stock['name']} 차트](charts/{stock['name']}_weekly.png)")
+        filename = f"report_{timestamp.strftime('%Y%m%d_%H%M%S')}.html"
+        file_path = reports_dir / filename
 
-        if stock.get('news'):
-            lines.append("")
-            lines.append("**관련 뉴스:**")
-            for news in stock['news']:
-                lines.append(f"- [{news['title']}]({news['link']})")
+        file_path.write_text(content, encoding="utf-8")
 
-        lines.append("")
-
-    return "\n".join(lines)
-
-
-def save_report(content, filename=None):
-    """리포트를 파일로 저장"""
-    os.makedirs("reports", exist_ok=True)
-
-    if filename is None:
-        today = datetime.now().strftime("%Y%m%d")
-        filename = f"reports/report_{today}.md"
-
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(content)
-
-    return filename
+        return str(file_path)
