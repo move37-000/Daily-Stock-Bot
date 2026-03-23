@@ -112,6 +112,32 @@
         }
 
         .change-neutral { color: #8E8E93; }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+
+        .stock-row-clickable {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .stock-row-clickable:hover {
+            background-color: #F5F5F7;
+        }
+
+        .stock-row-clickable.active {
+            background-color: #E8F4FD;
+        }
     </style>
 </head>
 <body>
@@ -151,33 +177,39 @@
         </div>
     </div>
 
-    <!-- 미국 차트 (base64 이미지) -->
+    <!-- 미국 차트 (클릭으로 변경 가능) -->
     {% if us_market.chart_base64 %}
-        <div class="card">
-            <div class="chart-container">
-                <img src="data:image/png;base64,{{ us_market.chart_base64 }}" width="100%" alt="US Market Chart">
-            </div>
+    <div class="card">
+        <div class="chart-header">
+            <span class="chart-title" id="us-chart-title">{{ us_stocks[0].symbol }}</span>
         </div>
+        <div class="chart-container">
+            <img id="us-chart-img" src="data:image/png;base64,{{ us_market.chart_base64 }}" width="100%" alt="US Market Chart">
+        </div>
+    </div>
     {% endif %}
 
     <!-- 미국 종목 리스트 -->
     <div class="card">
         {% for stock in us_stocks %}
-            <div class="stock-row">
-                <div class="stock-info">
-                    <div class="stock-icon icon-{{ stock.color }}">{{ stock.symbol[:4] }}</div>
-                    <div>
-                        <div class="stock-name">{{ stock.symbol }}</div>
-                        <div class="stock-fullname">{{ stock.name }}</div>
-                    </div>
-                </div>
-                <div class="stock-right">
-                    <div class="stock-price">${{ stock.price }}</div>
-                    <div class="stock-change {% if stock.change > 0 %}change-up{% elif stock.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-                        {% if stock.change > 0 %}▲{% elif stock.change < 0 %}▼{% else %}-{% endif %} {{ stock.change_pct }}%
-                    </div>
+        <div class="stock-row stock-row-clickable"
+                data-market="us"
+                data-symbol="{{ stock.symbol }}"
+                data-chart="{{ stock.chart_base64 or '' }}">
+            <div class="stock-info">
+                <div class="stock-icon icon-{{ stock.color }}">{{ stock.symbol[:4] }}</div>
+                <div>
+                    <div class="stock-name">{{ stock.symbol }}</div>
+                    <div class="stock-fullname">{{ stock.name }}</div>
                 </div>
             </div>
+            <div class="stock-right">
+                <div class="stock-price">${{ stock.price }}</div>
+                <div class="stock-change {% if stock.change > 0 %}change-up{% elif stock.change < 0 %}change-down{% else %}change-neutral{% endif %}">
+                    {% if stock.change > 0 %}▲{% elif stock.change < 0 %}▼{% else %}-{% endif %} {{ stock.change_pct }}%
+                </div>
+            </div>
+        </div>
         {% endfor %}
     </div>
 
@@ -211,35 +243,42 @@
         </div>
     </div>
 
-    <!-- 한국 차트 (base64 이미지) -->
+    <!-- 한국 차트 (클릭으로 변경 가능) -->
     {% if kr_market.chart_base64 %}
-        <div class="card">
-            <div class="chart-container">
-                <img src="data:image/png;base64,{{ kr_market.chart_base64 }}" width="100%" alt="KR Market Chart">
-            </div>
+    <div class="card">
+        <div class="chart-header">
+            <span class="chart-title" id="kr-chart-title">{{ kr_stocks[0].symbol }}</span>
         </div>
+        <div class="chart-container">
+            <img id="kr-chart-img" src="data:image/png;base64,{{ kr_market.chart_base64 }}" width="100%" alt="KR Market Chart">
+        </div>
+    </div>
     {% endif %}
 
     <!-- 한국 종목 리스트 -->
     <div class="card">
         {% for stock in kr_stocks %}
-            <div class="stock-row">
-                <div class="stock-info">
-                    <div class="stock-icon icon-{{ stock.color }}">{{ stock.symbol[:4] }}</div>
-                    <div>
-                        <div class="stock-name">{{ stock.symbol }}</div>
-                        <div class="stock-fullname">{{ stock.name }}</div>
-                    </div>
-                </div>
-                <div class="stock-right">
-                    <div class="stock-price">{{ stock.price }}원</div>
-                    <div class="stock-change {% if stock.change > 0 %}change-up{% elif stock.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-                        {% if stock.change > 0 %}▲{% elif stock.change < 0 %}▼{% else %}-{% endif %} {{ stock.change_pct }}%
-                    </div>
+        <div class="stock-row stock-row-clickable"
+                data-market="kr"
+                data-symbol="{{ stock.symbol }}"
+                data-chart="{{ stock.chart_base64 or '' }}">
+            <div class="stock-info">
+                <div class="stock-icon icon-{{ stock.color }}">{{ stock.symbol[:4] }}</div>
+                <div>
+                    <div class="stock-name">{{ stock.symbol }}</div>
+                    <div class="stock-fullname">{{ stock.name }}</div>
                 </div>
             </div>
+            <div class="stock-right">
+                <div class="stock-price">{{ stock.price }}원</div>
+                <div class="stock-change {% if stock.change > 0 %}change-up{% elif stock.change < 0 %}change-down{% else %}change-neutral{% endif %}">
+                    {% if stock.change > 0 %}▲{% elif stock.change < 0 %}▼{% else %}-{% endif %} {{ stock.change_pct }}%
+                </div>
+            </div>
+        </div>
         {% endfor %}
     </div>
+
     <!-- 뉴스 섹션 -->
     <div class="section-label">📰 News</div>
     <div class="card">
@@ -275,5 +314,41 @@
         데이터 기준: {{ generated_at }}<br>
         본 리포트는 투자 권유가 아닙니다
     </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 모든 클릭 가능한 종목 행
+        const rows = document.querySelectorAll('.stock-row-clickable');
+
+        rows.forEach(row => {
+            row.addEventListener('click', function() {
+                const market = this.dataset.market;
+                const symbol = this.dataset.symbol;
+                const chartData = this.dataset.chart;
+
+                if (!chartData) return;  // 차트 데이터 없으면 무시
+
+                // 이미지 교체
+                const imgId = market === 'us' ? 'us-chart-img' : 'kr-chart-img';
+                const titleId = market === 'us' ? 'us-chart-title' : 'kr-chart-title';
+
+                document.getElementById(imgId).src = 'data:image/png;base64,' + chartData;
+                document.getElementById(titleId).textContent = symbol;
+
+                // active 클래스 토글
+                const marketRows = document.querySelectorAll(`.stock-row-clickable[data-market="${market}"]`);
+                marketRows.forEach(r => r.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 첫 번째 종목 기본 선택
+        const firstUs = document.querySelector('.stock-row-clickable[data-market="us"]');
+        const firstKr = document.querySelector('.stock-row-clickable[data-market="kr"]');
+        if (firstUs) firstUs.classList.add('active');
+        if (firstKr) firstKr.classList.add('active');
+    });
+</script>
+
 </body>
 </html>

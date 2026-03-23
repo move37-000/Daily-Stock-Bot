@@ -73,25 +73,30 @@ def transform_us_data(us_results, us_index):
     }
 
     us_stocks = []
+    first_chart = None
+
     for i, stock in enumerate(us_results):
+        # 각 종목별 차트 생성
+        chart_base64 = None
+        if stock.get('history'):
+            chart_base64 = generate_chart_base64(stock['symbol'], stock['history'])
+            if first_chart is None:
+                first_chart = chart_base64
+
         us_stocks.append({
             "symbol": stock['symbol'],
             "name": names.get(stock['symbol'], stock['symbol']),
             "price": f"{stock['close']:,.2f}",
             "change": stock['change'],
             "change_pct": f"{abs(stock['change_pct']):.2f}",
-            "color": COLORS[i % len(COLORS)]
+            "color": COLORS[i % len(COLORS)],
+            "chart_base64": chart_base64  # 종목별 차트 추가
         })
 
-    chart_base64 = None
-    if us_results and us_results[0].get('history'):
-        chart_base64 = generate_chart_base64('US', us_results[0]['history'])
-
-    # 지수 데이터 사용
     us_market = {
         "sp500": us_index.get("sp500", {"price": "-", "change": 0, "change_pct": "-"}),
         "nasdaq": us_index.get("nasdaq", {"price": "-", "change": 0, "change_pct": "-"}),
-        "chart_base64": chart_base64
+        "chart_base64": first_chart  # 첫 번째 종목 차트 (기본값)
     }
 
     return us_market, us_stocks
@@ -100,25 +105,30 @@ def transform_us_data(us_results, us_index):
 def transform_kr_data(kr_results, kr_index):
     """한국 크롤러 데이터 → 템플릿 데이터로 변환"""
     kr_stocks = []
+    first_chart = None
+
     for i, stock in enumerate(kr_results):
+        # 각 종목별 차트 생성
+        chart_base64 = None
+        if stock.get('history'):
+            chart_base64 = generate_chart_base64(stock['name'], stock['history'])
+            if first_chart is None:
+                first_chart = chart_base64
+
         kr_stocks.append({
             "symbol": stock['name'],
             "name": stock['code'],
             "price": f"{int(stock['close']):,}",
             "change": stock['change'],
             "change_pct": f"{abs(stock['change_pct']):.2f}",
-            "color": COLORS[i % len(COLORS)]
+            "color": COLORS[i % len(COLORS)],
+            "chart_base64": chart_base64  # 종목별 차트 추가
         })
 
-    chart_base64 = None
-    if kr_results and kr_results[0].get('history'):
-        chart_base64 = generate_chart_base64('KR', kr_results[0]['history'])
-
-    # 지수 데이터 사용
     kr_market = {
         "kospi": kr_index.get("kospi", {"price": "-", "change": 0, "change_pct": "-"}),
         "kosdaq": kr_index.get("kosdaq", {"price": "-", "change": 0, "change_pct": "-"}),
-        "chart_base64": chart_base64
+        "chart_base64": first_chart  # 첫 번째 종목 차트 (기본값)
     }
 
     return kr_market, kr_stocks
