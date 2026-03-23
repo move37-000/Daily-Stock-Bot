@@ -6,3 +6,4 @@ python-dotenv
 pytest
 matplotlib
 Jinja2
+numpy
