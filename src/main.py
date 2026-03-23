@@ -2,6 +2,7 @@ from src.config import US_TICKERS, KR_TICKERS, SLACK_WEBHOOK_URL
 from src.crawler import fetch_us_stocks, fetch_kr_stocks
 from src.service import ReportService, send_slack_message, generate_chart_base64
 from src.repository import init_db, save_stock_price, get_stock_history
+from src.crawler import fetch_us_stocks, fetch_kr_stocks, fetch_us_index, fetch_kr_index
 
 # 아이콘 색상 로테이션
 COLORS = ["blue", "green", "purple", "orange", "red"]
@@ -59,7 +60,7 @@ def save_kr_stocks(results):
                     print(f"  저장: {stock['name']} ({day['date']})")
 
 
-def transform_us_data(us_results):
+def transform_us_data(us_results, us_index):
     """미국 크롤러 데이터 → 템플릿 데이터로 변환"""
     names = {
         'AAPL': 'Apple Inc.',
@@ -73,15 +74,12 @@ def transform_us_data(us_results):
 
     us_stocks = []
     for i, stock in enumerate(us_results):
-        change = stock['change']
-        change_pct = stock['change_pct']
-
         us_stocks.append({
             "symbol": stock['symbol'],
             "name": names.get(stock['symbol'], stock['symbol']),
-            "price": f"{stock['close']:,.2f}",  # $228.44
-            "change": change,
-            "change_pct": f"{abs(change_pct):.2f}",
+            "price": f"{stock['close']:,.2f}",
+            "change": stock['change'],
+            "change_pct": f"{abs(stock['change_pct']):.2f}",
             "color": COLORS[i % len(COLORS)]
         })
 
@@ -89,28 +87,26 @@ def transform_us_data(us_results):
     if us_results and us_results[0].get('history'):
         chart_base64 = generate_chart_base64('US', us_results[0]['history'])
 
+    # 지수 데이터 사용
     us_market = {
-        "sp500": {"price": "-", "change": 0, "change_pct": "-"},
-        "nasdaq": {"price": "-", "change": 0, "change_pct": "-"},
+        "sp500": us_index.get("sp500", {"price": "-", "change": 0, "change_pct": "-"}),
+        "nasdaq": us_index.get("nasdaq", {"price": "-", "change": 0, "change_pct": "-"}),
         "chart_base64": chart_base64
     }
 
     return us_market, us_stocks
 
 
-def transform_kr_data(kr_results):
+def transform_kr_data(kr_results, kr_index):
     """한국 크롤러 데이터 → 템플릿 데이터로 변환"""
     kr_stocks = []
     for i, stock in enumerate(kr_results):
-        change = stock['change']
-        change_pct = stock['change_pct']
-
         kr_stocks.append({
             "symbol": stock['name'],
             "name": stock['code'],
             "price": f"{int(stock['close']):,}",
-            "change": change,
-            "change_pct": f"{abs(change_pct):.2f}",
+            "change": stock['change'],
+            "change_pct": f"{abs(stock['change_pct']):.2f}",
             "color": COLORS[i % len(COLORS)]
         })
 
@@ -118,9 +114,10 @@ def transform_kr_data(kr_results):
     if kr_results and kr_results[0].get('history'):
         chart_base64 = generate_chart_base64('KR', kr_results[0]['history'])
 
+    # 지수 데이터 사용
     kr_market = {
-        "kospi": {"price": "-", "change": 0, "change_pct": "-"},
-        "kosdaq": {"price": "-", "change": 0, "change_pct": "-"},
+        "kospi": kr_index.get("kospi", {"price": "-", "change": 0, "change_pct": "-"}),
+        "kosdaq": kr_index.get("kosdaq", {"price": "-", "change": 0, "change_pct": "-"}),
         "chart_base64": chart_base64
     }
 
@@ -166,18 +163,23 @@ def main():
     us_results = fetch_us_stocks(US_TICKERS)
     kr_results = fetch_kr_stocks(KR_TICKERS)
 
+    # 1-1. 지수 데이터 수집
+    print("지수 데이터 수집 중...")
+    us_index = fetch_us_index()
+    kr_index = fetch_kr_index()
+
     # 2. DB 저장
     print("DB 저장 중...")
     save_us_stocks(us_results)
     save_kr_stocks(kr_results)
 
-    # 4. 데이터 변환 (크롤러 → 템플릿)
+    # 3. 데이터 변환 (크롤러 → 템플릿)
     print("데이터 변환 중...")
-    us_market, us_stocks = transform_us_data(us_results)
-    kr_market, kr_stocks = transform_kr_data(kr_results)
+    us_market, us_stocks = transform_us_data(us_results, us_index)
+    kr_market, kr_stocks = transform_kr_data(kr_results, kr_index)
     news_list = transform_news(us_results, kr_results)
 
-    # 5. HTML 리포트 생성
+    # 4. HTML 리포트 생성
     print("리포트 생성 중...")
     try:
         service = ReportService()
@@ -187,13 +189,13 @@ def main():
             us_stocks=us_stocks,
             kr_stocks=kr_stocks,
             news_list=news_list,
-            ai_comment=None  # 나중에 Claude API 연동
+            ai_comment=None
         )
         print(f"리포트 저장 완료: {filename}")
     except Exception as e:
         print(f"[에러] 리포트 생성 실패: {e}")
 
-    # 6. Slack 알림
+    # 5. Slack 알림
     print("Slack 전송 중...")
     try:
         if send_slack_message(SLACK_WEBHOOK_URL, us_results, kr_results):

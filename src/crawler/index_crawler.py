@@ -1,0 +1,82 @@
+import yfinance as yf
+
+
+def fetch_us_index():
+    """
+    미국 시장 지수 (S&P 500, NASDAQ) 조회
+    """
+    result = {}
+
+    tickers = {
+        "sp500": "^GSPC",
+        "nasdaq": "^IXIC"
+    }
+
+    for name, symbol in tickers.items():
+        try:
+            ticker = yf.Ticker(symbol)
+            history = ticker.history(period="5d")
+
+            if len(history) < 2:
+                result[name] = {"price": "-", "change": 0, "change_pct": "-"}
+                continue
+
+            latest = history.iloc[-1]
+            prev = history.iloc[-2]
+
+            close = latest['Close']
+            change = close - prev['Close']
+            change_pct = (change / prev['Close']) * 100
+
+            result[name] = {
+                "price": f"{close:,.2f}",
+                "change": change,
+                "change_pct": f"{abs(change_pct):.2f}"
+            }
+
+        except Exception as e:
+            print(f"  [에러] {name} 지수 조회 실패: {e}")
+            result[name] = {"price": "-", "change": 0, "change_pct": "-"}
+
+    return result
+
+
+def fetch_kr_index():
+    """
+    한국 시장 지수 (KOSPI, KOSDAQ) 조회
+    Yahoo Finance 사용
+    """
+    result = {}
+
+    tickers = {
+        "kospi": "^KS11",
+        "kosdaq": "^KQ11"
+    }
+
+    for name, symbol in tickers.items():
+        try:
+            ticker = yf.Ticker(symbol)
+            history = ticker.history(period="5d")
+
+            if len(history) < 2:
+                result[name] = {"price": "-", "change": 0, "change_pct": "-"}
+                continue
+
+            latest = history.iloc[-1]
+            prev = history.iloc[-2]
+
+            close = latest['Close']
+            change = close - prev['Close']
+            change_pct = (change / prev['Close']) * 100
+
+            result[name] = {
+                "price": f"{close:,.2f}",
+                "change": change,
+                "change_pct": f"{abs(change_pct):.2f}"
+            }
+
+        except Exception as e:
+            print(f"  [에러] {name} 지수 조회 실패: {e}")
+            result[name] = {"price": "-", "change": 0, "change_pct": "-"}
+
+    return result
