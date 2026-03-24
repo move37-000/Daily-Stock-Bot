@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Stock Report - {{ report_date }}</title>
+  <title>Daily Stock Report - 2026-03-24</title>
   <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     @import url('https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css');
@@ -246,7 +246,7 @@
 
   <!-- 헤더 -->
   <div class="header">
-    <div class="header-date">{{ report_date }}</div>
+    <div class="header-date">2026-03-24</div>
     <div class="header-title">Daily Stock Report</div>
   </div>
 
@@ -256,32 +256,28 @@
   <div class="market-grid">
     <div class="market-card">
       <div class="market-label">S&P 500</div>
-      <div class="market-value">{{ us_market.sp500.price }}</div>
-      {% if us_market.sp500.change_pct != '-' %}
-        <div class="market-change {% if us_market.sp500.change > 0 %}change-up{% elif us_market.sp500.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-          {% if us_market.sp500.change > 0 %}▲{% elif us_market.sp500.change < 0 %}▼{% else %}-{% endif %} {{ us_market.sp500.change_pct }}%
+      <div class="market-value">6,581.00</div>
+      
+        <div class="market-change change-up">
+          ▲ 1.15%
         </div>
-      {% else %}
-        <div class="market-change change-neutral">데이터 없음</div>
-      {% endif %}
+      
     </div>
     <div class="market-card">
       <div class="market-label">NASDAQ</div>
-      <div class="market-value">{{ us_market.nasdaq.price }}</div>
-      {% if us_market.nasdaq.change_pct != '-' %}
-        <div class="market-change {% if us_market.nasdaq.change > 0 %}change-up{% elif us_market.nasdaq.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-          {% if us_market.nasdaq.change > 0 %}▲{% elif us_market.nasdaq.change < 0 %}▼{% else %}-{% endif %} {{ us_market.nasdaq.change_pct }}%
+      <div class="market-value">21,946.76</div>
+      
+        <div class="market-change change-up">
+          ▲ 1.38%
         </div>
-      {% else %}
-        <div class="market-change change-neutral">데이터 없음</div>
-      {% endif %}
+      
     </div>
   </div>
 
   <!-- 미국 차트 -->
   <div class="chart-card">
     <div class="chart-header">
-      <span class="chart-title" id="us-chart-title">{{ us_stocks[0].symbol if us_stocks else 'Chart' }}</span>
+      <span class="chart-title" id="us-chart-title">AAPL</span>
       <span class="chart-period">5일</span>
     </div>
     <div class="chart-container" id="us-chart"></div>
@@ -289,27 +285,107 @@
 
   <!-- 미국 종목 리스트 -->
   <div class="stock-list">
-    {% for stock in us_stocks %}
-    <div class="stock-row {% if loop.first %}active{% endif %}"
+    
+    <div class="stock-row active"
          data-market="us"
-         data-symbol="{{ stock.symbol }}"
-         data-history='{{ stock.history | tojson }}'
-         data-change="{{ stock.change }}">
+         data-symbol="AAPL"
+         data-history='[{"date": "2026-03-17", "price": 254.22999572753906}, {"date": "2026-03-18", "price": 249.94000244140625}, {"date": "2026-03-19", "price": 248.9600067138672}, {"date": "2026-03-20", "price": 247.99000549316406}, {"date": "2026-03-23", "price": 251.49000549316406}]'
+         data-change="3.5">
       <div class="stock-info">
-        <div class="stock-icon icon-{{ stock.color }}">{{ stock.symbol[:4] }}</div>
+        <div class="stock-icon icon-blue">AAPL</div>
         <div>
-          <div class="stock-name">{{ stock.symbol }}</div>
-          <div class="stock-fullname">{{ stock.name }}</div>
+          <div class="stock-name">AAPL</div>
+          <div class="stock-fullname">Apple Inc.</div>
         </div>
       </div>
       <div class="stock-right">
-        <div class="stock-price">${{ stock.price }}</div>
-        <div class="stock-change {% if stock.change > 0 %}change-up{% elif stock.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-          {% if stock.change > 0 %}▲{% elif stock.change < 0 %}▼{% else %}-{% endif %} {{ stock.change_pct }}%
+        <div class="stock-price">$251.49</div>
+        <div class="stock-change change-up">
+          ▲ 1.41%
         </div>
       </div>
     </div>
-    {% endfor %}
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="MSFT"
+         data-history='[{"date": "2026-03-17", "price": 399.4100036621094}, {"date": "2026-03-18", "price": 391.7900085449219}, {"date": "2026-03-19", "price": 389.0199890136719}, {"date": "2026-03-20", "price": 381.8699951171875}, {"date": "2026-03-23", "price": 383.0}]'
+         data-change="1.1300048828125">
+      <div class="stock-info">
+        <div class="stock-icon icon-green">MSFT</div>
+        <div>
+          <div class="stock-name">MSFT</div>
+          <div class="stock-fullname">Microsoft Corp.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$383.00</div>
+        <div class="stock-change change-up">
+          ▲ 0.30%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="GOOGL"
+         data-history='[{"date": "2026-03-17", "price": 310.9200134277344}, {"date": "2026-03-18", "price": 307.69000244140625}, {"date": "2026-03-19", "price": 307.1300048828125}, {"date": "2026-03-20", "price": 301.0}, {"date": "2026-03-23", "price": 302.05999755859375}]'
+         data-change="1.05999755859375">
+      <div class="stock-info">
+        <div class="stock-icon icon-purple">GOOG</div>
+        <div>
+          <div class="stock-name">GOOGL</div>
+          <div class="stock-fullname">Alphabet Inc.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$302.06</div>
+        <div class="stock-change change-up">
+          ▲ 0.35%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="TSLA"
+         data-history='[{"date": "2026-03-17", "price": 399.2699890136719}, {"date": "2026-03-18", "price": 392.7799987792969}, {"date": "2026-03-19", "price": 380.29998779296875}, {"date": "2026-03-20", "price": 367.9599914550781}, {"date": "2026-03-23", "price": 380.8500061035156}]'
+         data-change="12.8900146484375">
+      <div class="stock-info">
+        <div class="stock-icon icon-orange">TSLA</div>
+        <div>
+          <div class="stock-name">TSLA</div>
+          <div class="stock-fullname">Tesla Inc.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$380.85</div>
+        <div class="stock-change change-up">
+          ▲ 3.50%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="NVDA"
+         data-history='[{"date": "2026-03-17", "price": 181.92999267578125}, {"date": "2026-03-18", "price": 180.39999389648438}, {"date": "2026-03-19", "price": 178.55999755859375}, {"date": "2026-03-20", "price": 172.6999969482422}, {"date": "2026-03-23", "price": 175.63999938964844}]'
+         data-change="2.94000244140625">
+      <div class="stock-info">
+        <div class="stock-icon icon-red">NVDA</div>
+        <div>
+          <div class="stock-name">NVDA</div>
+          <div class="stock-fullname">NVIDIA Corp.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$175.64</div>
+        <div class="stock-change change-up">
+          ▲ 1.70%
+        </div>
+      </div>
+    </div>
+    
   </div>
 
   <!-- 한국 주식 섹션 -->
@@ -318,32 +394,28 @@
   <div class="market-grid">
     <div class="market-card">
       <div class="market-label">KOSPI</div>
-      <div class="market-value">{{ kr_market.kospi.price }}</div>
-      {% if kr_market.kospi.change_pct != '-' %}
-        <div class="market-change {% if kr_market.kospi.change > 0 %}change-up{% elif kr_market.kospi.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-          {% if kr_market.kospi.change > 0 %}▲{% elif kr_market.kospi.change < 0 %}▼{% else %}-{% endif %} {{ kr_market.kospi.change_pct }}%
+      <div class="market-value">5,530.14</div>
+      
+        <div class="market-change change-down">
+          ▼ 4.34%
         </div>
-      {% else %}
-        <div class="market-change change-neutral">데이터 없음</div>
-      {% endif %}
+      
     </div>
     <div class="market-card">
       <div class="market-label">KOSDAQ</div>
-      <div class="market-value">{{ kr_market.kosdaq.price }}</div>
-      {% if kr_market.kosdaq.change_pct != '-' %}
-        <div class="market-change {% if kr_market.kosdaq.change > 0 %}change-up{% elif kr_market.kosdaq.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-          {% if kr_market.kosdaq.change > 0 %}▲{% elif kr_market.kosdaq.change < 0 %}▼{% else %}-{% endif %} {{ kr_market.kosdaq.change_pct }}%
+      <div class="market-value">1,125.76</div>
+      
+        <div class="market-change change-down">
+          ▼ 3.08%
         </div>
-      {% else %}
-        <div class="market-change change-neutral">데이터 없음</div>
-      {% endif %}
+      
     </div>
   </div>
 
   <!-- 한국 차트 -->
   <div class="chart-card">
     <div class="chart-header">
-      <span class="chart-title" id="kr-chart-title">{{ kr_stocks[0].symbol if kr_stocks else 'Chart' }}</span>
+      <span class="chart-title" id="kr-chart-title">삼성전자</span>
       <span class="chart-period">5일</span>
     </div>
     <div class="chart-container" id="kr-chart"></div>
@@ -351,66 +423,130 @@
 
   <!-- 한국 종목 리스트 -->
   <div class="stock-list">
-    {% for stock in kr_stocks %}
-    <div class="stock-row {% if loop.first %}active{% endif %}"
+    
+    <div class="stock-row active"
          data-market="kr"
-         data-symbol="{{ stock.symbol }}"
-         data-history='{{ stock.history | tojson }}'
-         data-change="{{ stock.change }}">
+         data-symbol="삼성전자"
+         data-history='[{"date": "2026-03-17", "price": 193900.0}, {"date": "2026-03-18", "price": 208500.0}, {"date": "2026-03-19", "price": 200500.0}, {"date": "2026-03-20", "price": 199400.0}, {"date": "2026-03-23", "price": 186300.0}]'
+         data-change="-13100.0">
       <div class="stock-info">
-        <div class="stock-icon icon-{{ stock.color }}">{{ stock.symbol[:4] }}</div>
+        <div class="stock-icon icon-blue">삼성전자</div>
         <div>
-          <div class="stock-name">{{ stock.symbol }}</div>
-          <div class="stock-fullname">{{ stock.name }}</div>
+          <div class="stock-name">삼성전자</div>
+          <div class="stock-fullname">005930</div>
         </div>
       </div>
       <div class="stock-right">
-        <div class="stock-price">{{ stock.price }}원</div>
-        <div class="stock-change {% if stock.change > 0 %}change-up{% elif stock.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-          {% if stock.change > 0 %}▲{% elif stock.change < 0 %}▼{% else %}-{% endif %} {{ stock.change_pct }}%
+        <div class="stock-price">186,300원</div>
+        <div class="stock-change change-down">
+          ▼ 6.57%
         </div>
       </div>
     </div>
-    {% endfor %}
+    
+    <div class="stock-row "
+         data-market="kr"
+         data-symbol="SK하이닉스"
+         data-history='[{"date": "2026-03-17", "price": 970000.0}, {"date": "2026-03-18", "price": 1056000.0}, {"date": "2026-03-19", "price": 1013000.0}, {"date": "2026-03-20", "price": 1007000.0}, {"date": "2026-03-23", "price": 933000.0}]'
+         data-change="-74000.0">
+      <div class="stock-info">
+        <div class="stock-icon icon-green">SK하이</div>
+        <div>
+          <div class="stock-name">SK하이닉스</div>
+          <div class="stock-fullname">000660</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">933,000원</div>
+        <div class="stock-change change-down">
+          ▼ 7.35%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="kr"
+         data-symbol="카카오"
+         data-history='[{"date": "2026-03-17", "price": 51300.0}, {"date": "2026-03-18", "price": 51500.0}, {"date": "2026-03-19", "price": 50000.0}, {"date": "2026-03-20", "price": 50000.0}, {"date": "2026-03-23", "price": 46900.0}]'
+         data-change="-3100.0">
+      <div class="stock-info">
+        <div class="stock-icon icon-purple">카카오</div>
+        <div>
+          <div class="stock-name">카카오</div>
+          <div class="stock-fullname">035720</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">46,900원</div>
+        <div class="stock-change change-down">
+          ▼ 6.20%
+        </div>
+      </div>
+    </div>
+    
   </div>
 
   <!-- 뉴스 섹션 -->
   <div class="section-label">📰 News</div>
-  {% set bar_colors = ['blue', 'green', 'purple', 'orange', 'red'] %}
-  {% for news in news_list %}
-  <div class="news-card">
-    <div class="news-bar news-bar-{{ bar_colors[loop.index0 % 5] }}"></div>
-    <div class="news-content">
-      <div class="news-headline">{{ news.headline }}</div>
-      <div class="news-source">{{ news.source }}{% if news.time %} · {{ news.time }}{% endif %}</div>
-    </div>
-  </div>
-  {% endfor %}
-  {% if news_list | length == 0 %}
+  
+  
   <div class="news-card">
     <div class="news-bar news-bar-blue"></div>
     <div class="news-content">
-      <div class="news-headline" style="color: #8E8E93;">뉴스를 불러올 수 없습니다.</div>
+      <div class="news-headline">F1 CEO talks US growth as business accelerates</div>
+      <div class="news-source">Yahoo Finance Video</div>
     </div>
   </div>
-  {% endif %}
+  
+  <div class="news-card">
+    <div class="news-bar news-bar-green"></div>
+    <div class="news-content">
+      <div class="news-headline">Musk’s Terafab And Lace’s Atom Beams Test ASML’s Long-Term Edge</div>
+      <div class="news-source">Simply Wall St.</div>
+    </div>
+  </div>
+  
+  <div class="news-card">
+    <div class="news-bar news-bar-purple"></div>
+    <div class="news-content">
+      <div class="news-headline">Tech stocks today: Alphabet&#39;s Wing expands drone deliveries</div>
+      <div class="news-source">Yahoo Finance</div>
+    </div>
+  </div>
+  
+  <div class="news-card">
+    <div class="news-bar news-bar-orange"></div>
+    <div class="news-content">
+      <div class="news-headline">What is Tesla&#39;s &#39;Terafab&#39; and how much will it actually cost?</div>
+      <div class="news-source">Yahoo Finance Video</div>
+    </div>
+  </div>
+  
+  <div class="news-card">
+    <div class="news-bar news-bar-red"></div>
+    <div class="news-content">
+      <div class="news-headline">Tech stocks today: Alphabet&#39;s Wing expands drone deliveries</div>
+      <div class="news-source">Yahoo Finance</div>
+    </div>
+  </div>
+  
+  <div class="news-card">
+    <div class="news-bar news-bar-blue"></div>
+    <div class="news-content">
+      <div class="news-headline">삼성전자, 플랙트와 첫 공동 전시…유럽 HVAC 공략 본격화</div>
+      <div class="news-source">네이버 금융</div>
+    </div>
+  </div>
+  
+  
 
   <!-- AI 시황 분석 -->
-  {% if ai_comment %}
-  <div class="section-label">🤖 AI Analysis</div>
-  <div class="ai-card">
-    <div class="ai-header">
-      <span class="ai-title">시황 분석</span>
-      <span class="ai-badge">✦ Claude</span>
-    </div>
-    <div class="ai-comment">{{ ai_comment }}</div>
-  </div>
-  {% endif %}
+  
 
   <!-- 푸터 -->
   <div class="footer">
     Daily Stock Bot · GitHub Actions<br>
-    데이터 기준: {{ generated_at }}<br>
+    데이터 기준: 2026-03-24 10:04 KST<br>
     본 리포트는 투자 권유가 아닙니다
   </div>
 

@@ -78,7 +78,7 @@ def transform_us_data(us_results, us_index):
         history = []
         if stock.get('history'):
             sorted_history = sorted(stock['history'], key=lambda h: h['date'])
-            history = [{"date": h['date'][5:], "price": h['close']} for h in sorted_history]
+            history = [{"date": h['date'], "price": h['close']} for h in sorted_history]
 
         us_stocks.append({
             "symbol": stock['symbol'],
@@ -106,7 +106,7 @@ def transform_kr_data(kr_results, kr_index):
         history = []
         if stock.get('history'):
             sorted_history = sorted(stock['history'], key=lambda h: h['date'])
-            history = [{"date": h['date'][5:], "price": h['close']} for h in sorted_history]
+            history = [{"date": h['date'], "price": h['close']} for h in sorted_history]
 
         kr_stocks.append({
             "symbol": stock['name'],
