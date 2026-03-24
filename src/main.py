@@ -4,6 +4,7 @@ from src.service import ReportService, send_slack_message
 from src.crawler import fetch_us_index, fetch_kr_index
 from src.crawler.us_stock import fetch_us_stocks, fetch_us_market_news
 from src.crawler.kr_stock import fetch_kr_stocks, fetch_kr_market_news
+from src.crawler.index_crawler import fetch_us_index, fetch_kr_index, fetch_usd_krw
 
 US_DOMAINS = {
     'AAPL': 'apple.com',
@@ -156,6 +157,8 @@ def main():
     us_market_news = fetch_us_market_news()
     kr_market_news = fetch_kr_market_news()
 
+    usd_krw = fetch_usd_krw()
+
     # 4. DB 저장
     print("DB 저장 중...")
     save_us_stocks(us_results)
@@ -177,6 +180,7 @@ def main():
             kr_stocks=kr_stocks,
             us_market_news=us_market_news,
             kr_market_news=kr_market_news,
+            usd_krw=usd_krw,  # 추가
             ai_comment=None
         )
         print(f"리포트 저장 완료: {filename}")

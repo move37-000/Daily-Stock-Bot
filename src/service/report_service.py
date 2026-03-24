@@ -21,23 +21,9 @@ class ReportService:
             kr_stocks: list,
             us_market_news: list,
             kr_market_news: list,
+            usd_krw: dict = None,  # 추가
             ai_comment: str = None
     ) -> str:
-        """
-        HTML 리포트 생성
-
-        Args:
-            us_market: 미국 시장 지수 데이터
-            kr_market: 한국 시장 지수 데이터
-            us_stocks: 미국 종목 리스트
-            kr_stocks: 한국 종목 리스트
-            us_market_news: 미국 시장 뉴스 리스트
-            kr_market_news: 한국 시장 뉴스 리스트
-            ai_comment: AI 시황 분석 (선택)
-
-        Returns:
-            생성된 HTML 파일 경로
-        """
         template = self._env.get_template("report.html")
         now = datetime.now()
 
@@ -50,6 +36,7 @@ class ReportService:
             kr_stocks=kr_stocks,
             us_market_news=us_market_news,
             kr_market_news=kr_market_news,
+            usd_krw=usd_krw,  # 추가
             ai_comment=ai_comment
         )
 

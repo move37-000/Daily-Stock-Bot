@@ -98,3 +98,40 @@ def fetch_kr_index():
             result[name] = {"price": "-", "change": 0, "change_pct": "-", "history": []}
 
     return result
+
+def fetch_usd_krw():
+    """
+    USD/KRW 환율 조회
+    """
+    try:
+        ticker = yf.Ticker("USDKRW=X")
+        history = ticker.history(period="5d")
+
+        if len(history) < 2:
+            return {"price": "-", "change": 0, "change_pct": "-", "history": []}
+
+        latest = history.iloc[-1]
+        prev = history.iloc[-2]
+
+        close = latest['Close']
+        change = close - prev['Close']
+        change_pct = (change / prev['Close']) * 100
+
+        # 5일치 히스토리
+        daily_data = []
+        for date, row in history.iterrows():
+            daily_data.append({
+                'date': date.strftime("%Y-%m-%d"),
+                'price': row['Close']
+            })
+
+        return {
+            "price": f"{close:,.2f}",
+            "change": change,
+            "change_pct": f"{abs(change_pct):.2f}",
+            "history": daily_data
+        }
+
+    except Exception as e:
+        print(f"  [에러] USD/KRW 환율 조회 실패: {e}")
+        return {"price": "-", "change": 0, "change_pct": "-", "history": []}

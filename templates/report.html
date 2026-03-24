@@ -103,6 +103,42 @@ body {
 .change-down { color: #0A84FF; }
 .change-neutral { color: #8E8E93; }
 
+.exchange-card {
+  background: #2C2C2E;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 28px;
+  border: 0.5px solid rgba(255,255,255,0.08);
+}
+.exchange-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.exchange-left {
+  flex-shrink: 0;
+}
+.exchange-right {
+  flex: 1;
+  height: 50px;
+}
+.exchange-label {
+  font-size: 13px;
+  color: #8E8E93;
+  margin-bottom: 8px;
+}
+.exchange-value {
+  font-size: 26px;
+  font-weight: 600;
+  color: #F2F2F7;
+  margin-bottom: 6px;
+}
+.exchange-change {
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .chart-card {
   background: #2C2C2E;
   border-radius: 16px;
@@ -341,6 +377,7 @@ body.light .market-card,
 body.light .chart-card,
 body.light .stock-list,
 body.light .market-news,
+body.light .exchange-card,
 body.light .ai-card {
   background: #FFFFFF;
   border-color: rgba(0,0,0,0.06);
@@ -351,6 +388,7 @@ body.light .stock-name,
 body.light .stock-price,
 body.light .stock-news-title,
 body.light .market-news-headline,
+body.light .exchange-value,
 body.light .ai-title { color: #1C1C1E; }
 body.light .stock-row:hover,
 body.light .stock-row.active { background-color: #F2F2F7; }
@@ -389,6 +427,10 @@ body.light .footer { color: #8E8E93; }
   .market-label { font-size: 12px; }
   .market-value { font-size: 20px; }
   .market-change { font-size: 13px; }
+  .exchange-card { padding: 16px; }
+  .exchange-right { height: 40px; }
+  .exchange-value { font-size: 20px; }
+  .exchange-change { font-size: 13px; }
   .chart-card { padding: 16px; margin-bottom: 12px; }
   .chart-header { margin-bottom: 12px; }
   .chart-title { font-size: 14px; }
@@ -526,6 +568,23 @@ body.light .footer { color: #8E8E93; }
       <div class="market-news-meta">{{ news.publisher }}{% if news.time %} · {{ news.time }}{% endif %}</div>
     </a>
     {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if usd_krw and usd_krw.price != '-' %}
+  <div class="exchange-card">
+    <div class="exchange-content">
+      <div class="exchange-left">
+        <div class="exchange-label">💱 USD/KRW</div>
+        <div class="exchange-value">{{ usd_krw.price }}</div>
+        <div class="exchange-change {% if usd_krw.change > 0 %}change-up{% elif usd_krw.change < 0 %}change-down{% else %}change-neutral{% endif %}">
+          {% if usd_krw.change > 0 %}▲{% elif usd_krw.change < 0 %}▼{% else %}-{% endif %} {{ usd_krw.change_pct }}%
+        </div>
+      </div>
+      <div class="exchange-right">
+        <div class="sparkline" id="spark-usdkrw" data-history='{{ usd_krw.history | tojson }}' data-change="{{ usd_krw.change }}"></div>
+      </div>
+    </div>
   </div>
   {% endif %}
 
@@ -830,45 +889,50 @@ body.light .footer { color: #8E8E93; }
     }
 
     function createSparkline(el) {
-      const history = JSON.parse(el.dataset.history || '[]');
-      const change = parseFloat(el.dataset.change) || 0;
+  const history = JSON.parse(el.dataset.history || '[]');
+  const change = parseFloat(el.dataset.change) || 0;
 
-      if (history.length < 2) return;
+  if (history.length < 2) return;
 
-      const chart = LightweightCharts.createChart(el, {
-        width: el.clientWidth,
-        height: el.clientHeight,
-        layout: {
-          background: { type: 'solid', color: 'transparent' },
-          textColor: 'transparent',
-        },
-        grid: {
-          vertLines: { visible: false },
-          horzLines: { visible: false },
-        },
-        rightPriceScale: { visible: false },
-        timeScale: { visible: false },
-        handleScroll: false,
-        handleScale: false,
-        crosshair: { mode: LightweightCharts.CrosshairMode.Hidden },
-      });
+  const chart = LightweightCharts.createChart(el, {
+    width: el.clientWidth,
+    height: el.clientHeight,
+    layout: {
+      background: { type: 'solid', color: 'transparent' },
+      textColor: 'transparent',
+    },
+    grid: {
+      vertLines: { visible: false },
+      horzLines: { visible: false },
+    },
+    rightPriceScale: { visible: false },
+    timeScale: { visible: false },
+    handleScroll: false,
+    handleScale: false,
+    crosshair: { mode: LightweightCharts.CrosshairMode.Hidden },
+  });
 
-      const lineColor = change >= 0 ? '#FF453A' : '#0A84FF';
+  const isUp = change >= 0;
+  const lineColor = isUp ? '#FF453A' : '#0A84FF';
+  const topColor = isUp ? 'rgba(255, 69, 58, 0.4)' : 'rgba(10, 132, 255, 0.4)';
+  const bottomColor = isUp ? 'rgba(255, 69, 58, 0.0)' : 'rgba(10, 132, 255, 0.0)';
 
-      const series = chart.addLineSeries({
-        color: lineColor,
-        lineWidth: 2,
-        priceLineVisible: false,
-        lastValueVisible: false,
-        crosshairMarkerVisible: false,
-      });
+  const series = chart.addAreaSeries({
+    lineColor: lineColor,
+    lineWidth: 2,
+    topColor: topColor,
+    bottomColor: bottomColor,
+    priceLineVisible: false,
+    lastValueVisible: false,
+    crosshairMarkerVisible: false,
+  });
 
-      const data = history.map(d => ({ time: d.date, value: d.price }));
-      series.setData(data);
-      chart.timeScale().fitContent();
+  const data = history.map(d => ({ time: d.date, value: d.price }));
+  series.setData(data);
+  chart.timeScale().fitContent();
 
-      return chart;
-    }
+  return chart;
+}
 
     document.addEventListener('DOMContentLoaded', function() {
       const savedTheme = localStorage.getItem('theme');
