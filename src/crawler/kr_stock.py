@@ -18,9 +18,30 @@ def fetch_kr_news(code, limit=3):
             if article:
                 office_id = article.get('officeId', '')
                 article_id = article.get('articleId', '')
+                datetime_str = article.get('datetime', '')
+
+                # 시간 포맷 변환
+                time_str = ''
+                if datetime_str and len(datetime_str) >= 12:
+                    try:
+                        month = int(datetime_str[4:6])
+                        day = int(datetime_str[6:8])
+                        hour = int(datetime_str[8:10])
+                        minute = int(datetime_str[10:12])
+                        if hour < 12:
+                            ampm = '오전'
+                            display_hour = hour if hour != 0 else 12
+                        else:
+                            ampm = '오후'
+                            display_hour = hour - 12 if hour != 12 else 12
+                        time_str = f"{month}월 {day}일 {ampm} {display_hour}시 {minute}분"
+                    except:
+                        pass
+
                 news.append({
                     'title': article.get('title', ''),
-                    'link': f"https://n.news.naver.com/mnews/article/{office_id}/{article_id}"
+                    'link': f"https://n.news.naver.com/mnews/article/{office_id}/{article_id}",
+                    'time': time_str  # 추가
                 })
 
         return news
@@ -90,3 +111,51 @@ def fetch_kr_stocks(tickers):
             continue
 
     return results
+
+
+def fetch_kr_market_news():
+    """한국 시장 뉴스 (대형주 3개에서 1개씩)"""
+    codes = ['005930', '000660', '005380']  # 삼성전자, SK하이닉스, 현대차
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    news = []
+
+    for code in codes:
+        try:
+            url = f"https://api.stock.naver.com/news/stock/{code}?pageSize=1"
+            response = requests.get(url, headers=headers)
+            data = response.json()
+
+            if data and len(data) > 0:
+                article = data[0].get('items', [{}])[0]
+                if article:
+                    datetime_str = article.get('datetime', '')
+
+                    time_str = ''
+                    if datetime_str and len(datetime_str) >= 12:
+                        try:
+                            month = int(datetime_str[4:6])
+                            day = int(datetime_str[6:8])
+                            hour = int(datetime_str[8:10])
+                            minute = int(datetime_str[10:12])
+                            if hour < 12:
+                                ampm = '오전'
+                                display_hour = hour if hour != 0 else 12
+                            else:
+                                ampm = '오후'
+                                display_hour = hour - 12 if hour != 12 else 12
+                            time_str = f"{month}월 {day}일 {ampm} {display_hour}시 {minute}분"
+                        except:
+                            pass
+
+                    news.append({
+                        'title': article.get('title', ''),
+                        'publisher': article.get('officeName', '네이버 금융'),
+                        'time': time_str,
+                        'link': f"https://n.news.naver.com/mnews/article/{article.get('officeId', '')}/{article.get('articleId', '')}"
+                    })
+        except Exception as e:
+            print(f"  [에러] 시장 뉴스 ({code}): {e}")
+            continue
+
+    return news

@@ -18,7 +18,7 @@ def fetch_us_index():
             history = ticker.history(period="5d")
 
             if len(history) < 2:
-                result[name] = {"price": "-", "change": 0, "change_pct": "-"}
+                result[name] = {"price": "-", "change": 0, "change_pct": "-", "history": []}
                 continue
 
             latest = history.iloc[-1]
@@ -28,15 +28,24 @@ def fetch_us_index():
             change = close - prev['Close']
             change_pct = (change / prev['Close']) * 100
 
+            # 5일치 히스토리 추가
+            daily_data = []
+            for date, row in history.iterrows():
+                daily_data.append({
+                    'date': date.strftime("%Y-%m-%d"),
+                    'price': row['Close']
+                })
+
             result[name] = {
                 "price": f"{close:,.2f}",
                 "change": change,
-                "change_pct": f"{abs(change_pct):.2f}"
+                "change_pct": f"{abs(change_pct):.2f}",
+                "history": daily_data
             }
 
         except Exception as e:
             print(f"  [에러] {name} 지수 조회 실패: {e}")
-            result[name] = {"price": "-", "change": 0, "change_pct": "-"}
+            result[name] = {"price": "-", "change": 0, "change_pct": "-", "history": []}
 
     return result
 
@@ -59,7 +68,7 @@ def fetch_kr_index():
             history = ticker.history(period="5d")
 
             if len(history) < 2:
-                result[name] = {"price": "-", "change": 0, "change_pct": "-"}
+                result[name] = {"price": "-", "change": 0, "change_pct": "-", "history": []}
                 continue
 
             latest = history.iloc[-1]
@@ -69,14 +78,23 @@ def fetch_kr_index():
             change = close - prev['Close']
             change_pct = (change / prev['Close']) * 100
 
+            # 5일치 히스토리 추가
+            daily_data = []
+            for date, row in history.iterrows():
+                daily_data.append({
+                    'date': date.strftime("%Y-%m-%d"),
+                    'price': row['Close']
+                })
+
             result[name] = {
                 "price": f"{close:,.2f}",
                 "change": change,
-                "change_pct": f"{abs(change_pct):.2f}"
+                "change_pct": f"{abs(change_pct):.2f}",
+                "history": daily_data
             }
 
         except Exception as e:
             print(f"  [에러] {name} 지수 조회 실패: {e}")
-            result[name] = {"price": "-", "change": 0, "change_pct": "-"}
+            result[name] = {"price": "-", "change": 0, "change_pct": "-", "history": []}
 
     return result

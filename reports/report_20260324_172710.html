@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Stock Report - {{ report_date }}</title>
+  <title>Daily Stock Report - 2026-03-24</title>
   <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     @import url('https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css');
@@ -69,23 +69,6 @@ body {
   border-radius: 16px;
   padding: 20px;
   border: 0.5px solid rgba(255,255,255,0.08);
-}
-.market-card-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-.market-card-left {
-  flex-shrink: 0;
-}
-.market-card-right {
-  flex: 1;
-  height: 50px;
-}
-.sparkline {
-  width: 100%;
-  height: 100%;
 }
 .market-label {
   font-size: 13px;
@@ -219,7 +202,7 @@ body {
   opacity: 1;
 }
 .stock-news-inline-inner {
-  padding: 0 20px;
+  padding: 12px 20px 16px;
 }
 .stock-news-item {
   display: block;
@@ -254,7 +237,7 @@ body {
 .market-news {
   background: #2C2C2E;
   border-radius: 16px;
-  padding: 16px 20px 0;
+  padding: 16px 20px;
   margin-bottom: 28px;
   border: 0.5px solid rgba(255,255,255,0.08);
 }
@@ -378,14 +361,15 @@ body.light .footer { color: #8E8E93; }
 /* 모바일 반응형 */
 @media (max-width: 600px) {
   body { padding: 20px 16px 48px; }
+  .stock-news-item {
+    padding: 10px 16px;
+    margin: 0 -16px;
+  }
   .header { margin-bottom: 24px; }
   .header-title { font-size: 22px; }
   .section-label { font-size: 11px; margin: 24px 0 10px; }
   .market-grid { gap: 10px; margin-bottom: 12px; }
   .market-card { padding: 16px; }
-  .market-card-right {
-    height: 40px;
-  }
   .market-label { font-size: 12px; }
   .market-value { font-size: 20px; }
   .market-change { font-size: 13px; }
@@ -406,14 +390,10 @@ body.light .footer { color: #8E8E93; }
   .stock-fullname { font-size: 11px; }
   .stock-price { font-size: 14px; }
   .stock-change { font-size: 12px; }
-  .stock-news-inline-inner { padding: 0 16px; }
-  .stock-news-item {
-    padding: 10px 16px;
-    margin: 0 -16px;
-  }
+  .stock-news-inline-inner { padding: 10px 16px 14px; }
   .stock-news-title { font-size: 12px; }
   .stock-news-time { font-size: 10px; }
-  .market-news { padding: 14px 16px 0; }
+  .market-news { padding: 14px 16px; }
   .market-news-title { font-size: 12px; }
   .market-news-headline { font-size: 13px; }
   .market-news-meta { font-size: 11px; }
@@ -433,7 +413,7 @@ body.light .footer { color: #8E8E93; }
 
   <div class="header">
     <div class="header-top">
-      <div class="header-date">{{ report_date }}</div>
+      <div class="header-date">2026-03-24</div>
       <button class="theme-toggle" onclick="toggleTheme()">
         <span class="theme-icon">☀️</span>
       </button>
@@ -445,192 +425,305 @@ body.light .footer { color: #8E8E93; }
 
   <div class="market-grid">
     <div class="market-card">
-      <div class="market-card-content">
-        <div class="market-card-left">
-          <div class="market-label">S&P 500</div>
-          <div class="market-value">{{ us_market.sp500.price }}</div>
-          {% if us_market.sp500.change_pct != '-' %}
-            <div class="market-change {% if us_market.sp500.change > 0 %}change-up{% elif us_market.sp500.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-              {% if us_market.sp500.change > 0 %}▲{% elif us_market.sp500.change < 0 %}▼{% else %}-{% endif %} {{ us_market.sp500.change_pct }}%
-            </div>
-          {% else %}
-            <div class="market-change change-neutral">데이터 없음</div>
-          {% endif %}
+      <div class="market-label">S&P 500</div>
+      <div class="market-value">6,581.00</div>
+      
+        <div class="market-change change-up">
+          ▲ 1.15%
         </div>
-        <div class="market-card-right">
-          <div class="sparkline" id="spark-sp500" data-history='{{ us_market.sp500.history | tojson }}' data-change="{{ us_market.sp500.change }}"></div>
-        </div>
-      </div>
+      
     </div>
     <div class="market-card">
-      <div class="market-card-content">
-        <div class="market-card-left">
-          <div class="market-label">NASDAQ</div>
-          <div class="market-value">{{ us_market.nasdaq.price }}</div>
-          {% if us_market.nasdaq.change_pct != '-' %}
-            <div class="market-change {% if us_market.nasdaq.change > 0 %}change-up{% elif us_market.nasdaq.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-              {% if us_market.nasdaq.change > 0 %}▲{% elif us_market.nasdaq.change < 0 %}▼{% else %}-{% endif %} {{ us_market.nasdaq.change_pct }}%
-            </div>
-          {% else %}
-            <div class="market-change change-neutral">데이터 없음</div>
-          {% endif %}
+      <div class="market-label">NASDAQ</div>
+      <div class="market-value">21,946.76</div>
+      
+        <div class="market-change change-up">
+          ▲ 1.38%
         </div>
-        <div class="market-card-right">
-          <div class="sparkline" id="spark-nasdaq" data-history='{{ us_market.nasdaq.history | tojson }}' data-change="{{ us_market.nasdaq.change }}"></div>
-        </div>
-      </div>
+      
     </div>
   </div>
 
   <div class="chart-card">
     <div class="chart-header">
-      <span class="chart-title" id="us-chart-title">{{ us_stocks[0].symbol if us_stocks else 'Chart' }}</span>
+      <span class="chart-title" id="us-chart-title">AAPL</span>
       <span class="chart-period">5일</span>
     </div>
     <div class="chart-container" id="us-chart"></div>
   </div>
 
   <div class="stock-list">
-    {% for stock in us_stocks %}
-    <div class="stock-row {% if loop.first %}active{% endif %}"
+    
+    <div class="stock-row active"
          data-market="us"
-         data-symbol="{{ stock.symbol }}"
-         data-history='{{ stock.history | tojson }}'
-         data-change="{{ stock.change }}"
-         data-news='{{ stock.news | tojson }}'>
+         data-symbol="AAPL"
+         data-history='[{"date": "2026-03-17", "price": 254.22999572753906}, {"date": "2026-03-18", "price": 249.94000244140625}, {"date": "2026-03-19", "price": 248.9600067138672}, {"date": "2026-03-20", "price": 247.99000549316406}, {"date": "2026-03-23", "price": 251.49000549316406}]'
+         data-change="3.5"
+         data-news='[{"link": null, "publisher": "Yahoo Finance Video", "time": "3\uc6d4 23\uc77c \uc624\ud6c4 5\uc2dc 30\ubd84", "title": "F1 CEO talks US growth as business accelerates"}, {"link": null, "publisher": "TheStreet", "time": "3\uc6d4 24\uc77c \uc624\uc804 1\uc2dc 37\ubd84", "title": "Bank of America resets Apple price target"}, {"link": null, "publisher": "Benzinga", "time": "3\uc6d4 24\uc77c \uc624\uc804 1\uc2dc 31\ubd84", "title": "Google Brings Gemini To Mac In Early Test To Rival ChatGPT"}]'>
       <div class="stock-info">
         <div class="stock-logo-wrapper">
-          <img class="stock-logo" src="{{ stock.logo }}" alt="{{ stock.symbol }}" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>{{ stock.symbol[0] }}</div>'">
+          <img class="stock-logo" src="https://img.logo.dev/apple.com?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&amp;size=40&amp;format=png" alt="AAPL" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>A</div>'">
         </div>
         <div>
-          <div class="stock-name">{{ stock.symbol }}</div>
-          <div class="stock-fullname">{{ stock.name }}</div>
+          <div class="stock-name">AAPL</div>
+          <div class="stock-fullname">Apple Inc.</div>
         </div>
       </div>
       <div class="stock-right">
-        <div class="stock-price">${{ stock.price }}</div>
-        <div class="stock-change {% if stock.change > 0 %}change-up{% elif stock.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-          {% if stock.change > 0 %}▲{% elif stock.change < 0 %}▼{% else %}-{% endif %} {{ stock.change_pct }}%
+        <div class="stock-price">$251.49</div>
+        <div class="stock-change change-up">
+          ▲ 1.41%
         </div>
       </div>
     </div>
-    {% endfor %}
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="MSFT"
+         data-history='[{"date": "2026-03-17", "price": 399.4100036621094}, {"date": "2026-03-18", "price": 391.7900085449219}, {"date": "2026-03-19", "price": 389.0199890136719}, {"date": "2026-03-20", "price": 381.8699951171875}, {"date": "2026-03-23", "price": 383.0}]'
+         data-change="1.1300048828125"
+         data-news='[{"link": null, "publisher": "24/7 Wall St.", "time": "3\uc6d4 24\uc77c \uc624\uc804 7\uc2dc 13\ubd84", "title": "Beat the S\u0026P 500 Without the Magnificent 7 Risk"}, {"link": null, "publisher": "Simply Wall St.", "time": "3\uc6d4 24\uc77c \uc624\uc804 5\uc2dc 4\ubd84", "title": "CrowdStrike AI Security Upgrades And Microsoft Tie Up Draw Investor Focus"}, {"link": null, "publisher": "MarketBeat", "time": "3\uc6d4 24\uc77c \uc624\uc804 2\uc2dc 2\ubd84", "title": "Amdocs Unveils aOS Agentic AI Platform to Speed Telecom GenAI Adoption, Citing Early ROI Gains"}]'>
+      <div class="stock-info">
+        <div class="stock-logo-wrapper">
+          <img class="stock-logo" src="https://img.logo.dev/microsoft.com?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&amp;size=40&amp;format=png" alt="MSFT" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>M</div>'">
+        </div>
+        <div>
+          <div class="stock-name">MSFT</div>
+          <div class="stock-fullname">Microsoft Corp.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$383.00</div>
+        <div class="stock-change change-up">
+          ▲ 0.30%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="GOOGL"
+         data-history='[{"date": "2026-03-17", "price": 310.9200134277344}, {"date": "2026-03-18", "price": 307.69000244140625}, {"date": "2026-03-19", "price": 307.1300048828125}, {"date": "2026-03-20", "price": 301.0}, {"date": "2026-03-23", "price": 302.05999755859375}]'
+         data-change="1.05999755859375"
+         data-news='[{"link": null, "publisher": "Yahoo Finance", "time": "3\uc6d4 13\uc77c \uc624\ud6c4 2\uc2dc 42\ubd84", "title": "Tech stocks today: Alphabet\u0027s Wing expands drone deliveries"}, {"link": null, "publisher": "Yahoo Finance Video", "time": "3\uc6d4 23\uc77c \uc624\ud6c4 3\uc2dc 2\ubd84", "title": "DraftKings rises on Senate\u0027s sports events, prediction markets bill"}, {"link": null, "publisher": "Motley Fool", "time": "3\uc6d4 24\uc77c \uc624\uc804 8\uc2dc 5\ubd84", "title": "Are These Nuclear Energy Stocks No-Brainer Buys Right Now?"}]'>
+      <div class="stock-info">
+        <div class="stock-logo-wrapper">
+          <img class="stock-logo" src="https://img.logo.dev/google.com?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&amp;size=40&amp;format=png" alt="GOOGL" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>G</div>'">
+        </div>
+        <div>
+          <div class="stock-name">GOOGL</div>
+          <div class="stock-fullname">Alphabet Inc.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$302.06</div>
+        <div class="stock-change change-up">
+          ▲ 0.35%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="TSLA"
+         data-history='[{"date": "2026-03-17", "price": 399.2699890136719}, {"date": "2026-03-18", "price": 392.7799987792969}, {"date": "2026-03-19", "price": 380.29998779296875}, {"date": "2026-03-20", "price": 367.9599914550781}, {"date": "2026-03-23", "price": 380.8500061035156}]'
+         data-change="12.8900146484375"
+         data-news='[{"link": null, "publisher": "Yahoo Finance", "time": "3\uc6d4 23\uc77c \uc624\ud6c4 4\uc2dc 34\ubd84", "title": "Elon Musk\u0027s Terafab is here: What it is, and why it\u0027s important for Tesla and SpaceX"}, {"link": "https://finance.yahoo.com/m/187aa4f6-3102-3132-b6c5-8467b52a46a2/tesla-sales-rebound-in-europe.html", "publisher": "The Wall Street Journal", "time": "3\uc6d4 24\uc77c \uc624\uc804 5\uc2dc 43\ubd84", "title": "Tesla Sales Rebound in Europe After Monthslong Slump"}, {"link": null, "publisher": "Reuters", "time": "3\uc6d4 24\uc77c \uc624\uc804 5\uc2dc 1\ubd84", "title": "European car sales rise modestly in February, Tesla reverses year-long skid"}]'>
+      <div class="stock-info">
+        <div class="stock-logo-wrapper">
+          <img class="stock-logo" src="https://img.logo.dev/tesla.com?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&amp;size=40&amp;format=png" alt="TSLA" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>T</div>'">
+        </div>
+        <div>
+          <div class="stock-name">TSLA</div>
+          <div class="stock-fullname">Tesla Inc.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$380.85</div>
+        <div class="stock-change change-up">
+          ▲ 3.50%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="us"
+         data-symbol="NVDA"
+         data-history='[{"date": "2026-03-17", "price": 181.92999267578125}, {"date": "2026-03-18", "price": 180.39999389648438}, {"date": "2026-03-19", "price": 178.55999755859375}, {"date": "2026-03-20", "price": 172.6999969482422}, {"date": "2026-03-23", "price": 175.63999938964844}]'
+         data-change="2.94000244140625"
+         data-news='[{"link": null, "publisher": "Yahoo Finance", "time": "3\uc6d4 13\uc77c \uc624\ud6c4 2\uc2dc 42\ubd84", "title": "Tech stocks today: Alphabet\u0027s Wing expands drone deliveries"}, {"link": null, "publisher": "Yahoo Finance", "time": "3\uc6d4 23\uc77c \uc624\ud6c4 2\uc2dc 24\ubd84", "title": "If Iran war sends oil prices up 100%, here\u0027s what history says will happen to the stock market"}, {"link": null, "publisher": "Motley Fool", "time": "3\uc6d4 24\uc77c \uc624\uc804 8\uc2dc 20\ubd84", "title": "Beware the AI Crypto Scam: Here\u0027s How to Invest Safely in the Age of AI"}]'>
+      <div class="stock-info">
+        <div class="stock-logo-wrapper">
+          <img class="stock-logo" src="https://img.logo.dev/nvidia.com?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&amp;size=40&amp;format=png" alt="NVDA" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>N</div>'">
+        </div>
+        <div>
+          <div class="stock-name">NVDA</div>
+          <div class="stock-fullname">NVIDIA Corp.</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$175.64</div>
+        <div class="stock-change change-up">
+          ▲ 1.70%
+        </div>
+      </div>
+    </div>
+    
   </div>
 
-  {% if us_market_news %}
+  
   <div class="market-news">
     <div class="market-news-title">📰 US Market News</div>
-    {% for news in us_market_news %}
-    <a href="{{ news.link }}" target="_blank" class="market-news-item">
-      <div class="market-news-headline">{{ news.title }}</div>
-      <div class="market-news-meta">{{ news.publisher }}{% if news.time %} · {{ news.time }}{% endif %}</div>
+    
+    <a href="None" target="_blank" class="market-news-item">
+      <div class="market-news-headline">Stock market today: Dow, S&amp;P 500, Nasdaq futures waver as Iran officials reject negotiation</div>
+      <div class="market-news-meta">Yahoo Finance</div>
     </a>
-    {% endfor %}
+    
+    <a href="None" target="_blank" class="market-news-item">
+      <div class="market-news-headline">The S&amp;P 500, Dow Jones Industrial Average, and Nasdaq Composite all just fell below this important trapdoor</div>
+      <div class="market-news-meta">Yahoo Finance</div>
+    </a>
+    
+    <a href="None" target="_blank" class="market-news-item">
+      <div class="market-news-headline">3 weeks of war, possible rate hikes, and AI&#39;s &#39;show me&#39; phase: What to watch this week</div>
+      <div class="market-news-meta">Yahoo Finance</div>
+    </a>
+    
   </div>
-  {% endif %}
+  
 
   <div class="section-label">🇰🇷 KR Market</div>
 
   <div class="market-grid">
     <div class="market-card">
-      <div class="market-card-content">
-        <div class="market-card-left">
-          <div class="market-label">KOSPI</div>
-          <div class="market-value">{{ kr_market.kospi.price }}</div>
-          {% if kr_market.kospi.change_pct != '-' %}
-            <div class="market-change {% if kr_market.kospi.change > 0 %}change-up{% elif kr_market.kospi.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-              {% if kr_market.kospi.change > 0 %}▲{% elif kr_market.kospi.change < 0 %}▼{% else %}-{% endif %} {{ kr_market.kospi.change_pct }}%
-            </div>
-          {% else %}
-            <div class="market-change change-neutral">데이터 없음</div>
-          {% endif %}
+      <div class="market-label">KOSPI</div>
+      <div class="market-value">5,553.92</div>
+      
+        <div class="market-change change-up">
+          ▲ 2.74%
         </div>
-        <div class="market-card-right">
-          <div class="sparkline" id="spark-kospi" data-history='{{ kr_market.kospi.history | tojson }}' data-change="{{ kr_market.kospi.change }}"></div>
-        </div>
-      </div>
+      
     </div>
     <div class="market-card">
-      <div class="market-card-content">
-        <div class="market-card-left">
-          <div class="market-label">KOSDAQ</div>
-          <div class="market-value">{{ kr_market.kosdaq.price }}</div>
-          {% if kr_market.kosdaq.change_pct != '-' %}
-            <div class="market-change {% if kr_market.kosdaq.change > 0 %}change-up{% elif kr_market.kosdaq.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-              {% if kr_market.kosdaq.change > 0 %}▲{% elif kr_market.kosdaq.change < 0 %}▼{% else %}-{% endif %} {{ kr_market.kosdaq.change_pct }}%
-            </div>
-          {% else %}
-            <div class="market-change change-neutral">데이터 없음</div>
-          {% endif %}
+      <div class="market-label">KOSDAQ</div>
+      <div class="market-value">1,121.44</div>
+      
+        <div class="market-change change-up">
+          ▲ 2.24%
         </div>
-        <div class="market-card-right">
-          <div class="sparkline" id="spark-kosdaq" data-history='{{ kr_market.kosdaq.history | tojson }}' data-change="{{ kr_market.kosdaq.change }}"></div>
-        </div>
-      </div>
+      
     </div>
   </div>
 
   <div class="chart-card">
     <div class="chart-header">
-      <span class="chart-title" id="kr-chart-title">{{ kr_stocks[0].symbol if kr_stocks else 'Chart' }}</span>
+      <span class="chart-title" id="kr-chart-title">삼성전자</span>
       <span class="chart-period">5일</span>
     </div>
     <div class="chart-container" id="kr-chart"></div>
   </div>
 
   <div class="stock-list">
-    {% for stock in kr_stocks %}
-    <div class="stock-row {% if loop.first %}active{% endif %}"
+    
+    <div class="stock-row active"
          data-market="kr"
-         data-symbol="{{ stock.symbol }}"
-         data-history='{{ stock.history | tojson }}'
-         data-change="{{ stock.change }}"
-         data-news='{{ stock.news | tojson }}'>
+         data-symbol="삼성전자"
+         data-history='[{"date": "2026-03-17", "price": 193900.0}, {"date": "2026-03-18", "price": 208500.0}, {"date": "2026-03-19", "price": 200500.0}, {"date": "2026-03-20", "price": 199400.0}, {"date": "2026-03-23", "price": 186300.0}]'
+         data-change="-13100.0"
+         data-news='[{"link": "https://n.news.naver.com/mnews/article/008/0005334489", "time": "3\uc6d4 24\uc77c \uc624\ud6c4 5\uc2dc 22\ubd84", "title": "\ud30c\uc5c5 \uac08\ub9bc\uae38\uc11c \ub2e4\uc2dc \ub9c8\uc8fc \uc549\uc740 \uc0bc\uc131\uc804\uc790 \ub178\uc0ac\u2026\uc784\uae08 \uad50\uc12d \uc7ac\uac1c"}, {"link": "https://n.news.naver.com/mnews/article/015/0005266334", "time": "3\uc6d4 24\uc77c \uc624\ud6c4 5\uc2dc 21\ubd84", "title": "\ub300\uae30\uc5c5 \uc774\uc0ac\ud68c \uc758\uc7a5\uc740 \uae08\uc735\uc704\uc6d0\uc7a5 \u0027\uc804\uc131\uc2dc\ub300\u0027"}, {"link": "https://n.news.naver.com/mnews/article/015/0005266328", "time": "3\uc6d4 24\uc77c \uc624\ud6c4 5\uc2dc 19\ubd84", "title": "\uacfc\uae30\ubd80, \uc5d4\ube44\ub514\uc544 \uce69 1.5\ub9cc\uc7a5 \ud655\ubcf4"}]'>
       <div class="stock-info">
         <div class="stock-logo-wrapper">
-          <img class="stock-logo" src="{{ stock.logo }}" alt="{{ stock.symbol }}" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>{{ stock.symbol[0] }}</div>'">
+          <img class="stock-logo" src="https://thumb.tossinvest.com/image/resized/40x0/https%3A%2F%2Fstatic.toss.im%2Fpng-icons%2Fsecurities%2Ficn-sec-fill-005930.png" alt="삼성전자" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>삼</div>'">
         </div>
         <div>
-          <div class="stock-name">{{ stock.symbol }}</div>
-          <div class="stock-fullname">{{ stock.name }}</div>
+          <div class="stock-name">삼성전자</div>
+          <div class="stock-fullname">005930</div>
         </div>
       </div>
       <div class="stock-right">
-        <div class="stock-price">{{ stock.price }}원</div>
-        <div class="stock-change {% if stock.change > 0 %}change-up{% elif stock.change < 0 %}change-down{% else %}change-neutral{% endif %}">
-          {% if stock.change > 0 %}▲{% elif stock.change < 0 %}▼{% else %}-{% endif %} {{ stock.change_pct }}%
+        <div class="stock-price">186,300원</div>
+        <div class="stock-change change-down">
+          ▼ 6.57%
         </div>
       </div>
     </div>
-    {% endfor %}
+    
+    <div class="stock-row "
+         data-market="kr"
+         data-symbol="SK하이닉스"
+         data-history='[{"date": "2026-03-17", "price": 970000.0}, {"date": "2026-03-18", "price": 1056000.0}, {"date": "2026-03-19", "price": 1013000.0}, {"date": "2026-03-20", "price": 1007000.0}, {"date": "2026-03-23", "price": 933000.0}]'
+         data-change="-74000.0"
+         data-news='[{"link": "https://n.news.naver.com/mnews/article/015/0005266334", "time": "3\uc6d4 24\uc77c \uc624\ud6c4 5\uc2dc 21\ubd84", "title": "\ub300\uae30\uc5c5 \uc774\uc0ac\ud68c \uc758\uc7a5\uc740 \uae08\uc735\uc704\uc6d0\uc7a5 \u0027\uc804\uc131\uc2dc\ub300\u0027"}, {"link": "https://n.news.naver.com/mnews/article/421/0008846503", "time": "3\uc6d4 24\uc77c \uc624\ud6c4 5\uc2dc 17\ubd84", "title": "\u0026quot;\uc77c\ub2e8\uc740 \uc548\ub3c4\u0026quot; \ucf54\uc2a4\ud53c, 5550\uc120 \ud68c\ubcf5 \ub9c8\uac10\u2026\ud658\uc728 22\uc6d0 \u0027\ub69d\u0027 [\uc2dc\ud669\uc885\ud569]"}, {"link": "https://n.news.naver.com/mnews/article/050/0000104064", "time": "3\uc6d4 24\uc77c \uc624\ud6c4 5\uc2dc 15\ubd84", "title": "\u201c\ub0b4 \uc6d4\uae09\uc740 \uadf8\ub300\ub85c\uc778\ub370\u201d...\uc9c1\uc7a5\uc778 \ud3c9\uade0 \uc5f0\ubd09\uc774 5000\ub9cc\uc6d0?"}]'>
+      <div class="stock-info">
+        <div class="stock-logo-wrapper">
+          <img class="stock-logo" src="https://thumb.tossinvest.com/image/resized/40x0/https%3A%2F%2Fstatic.toss.im%2Fpng-icons%2Fsecurities%2Ficn-sec-fill-000660.png" alt="SK하이닉스" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>S</div>'">
+        </div>
+        <div>
+          <div class="stock-name">SK하이닉스</div>
+          <div class="stock-fullname">000660</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">933,000원</div>
+        <div class="stock-change change-down">
+          ▼ 7.35%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row "
+         data-market="kr"
+         data-symbol="카카오"
+         data-history='[{"date": "2026-03-17", "price": 51300.0}, {"date": "2026-03-18", "price": 51500.0}, {"date": "2026-03-19", "price": 50000.0}, {"date": "2026-03-20", "price": 50000.0}, {"date": "2026-03-23", "price": 46900.0}]'
+         data-change="-3100.0"
+         data-news='[{"link": "https://n.news.naver.com/mnews/article/009/0005655388", "time": "3\uc6d4 24\uc77c \uc624\ud6c4 5\uc2dc 13\ubd84", "title": "\uc1fc\ud551\ubd80\ud130 \ubc95\ub960\uc0c1\ub2f4\uae4c\uc9c0 \u4e2d AI\uc5d0\uc774\uc804\ud2b8 \uad74\uae30"}, {"link": "https://n.news.naver.com/mnews/article/011/0004602872", "time": "3\uc6d4 24\uc77c \uc624\ud6c4 4\uc2dc 46\ubd84", "title": "\uce74\uce74\uc624\ud1a1\uc11c \ucc57GPT \uc4f0\ub2e4 \uc138\uae08 \ubb38\uc758\u2026 \u2018\uc0bc\uca5c\uc0bcQ\u2019 \ucd9c\uc2dc"}, {"link": "https://n.news.naver.com/mnews/article/374/0000499989", "time": "3\uc6d4 24\uc77c \uc624\ud6c4 4\uc2dc 38\ubd84", "title": "[\uc99d\uc2dc \uc778\uc0ac\uc774\ud2b8] \uad6d\ub0b4\uc99d\uc2dc \ub3d9\ubc18 \uc0c1\uc2b9 \ub9c8\uac10\u2026\ucf54\uc2a4\ud53c 5500\uc120 \ud68c\ubcf5"}]'>
+      <div class="stock-info">
+        <div class="stock-logo-wrapper">
+          <img class="stock-logo" src="https://thumb.tossinvest.com/image/resized/40x0/https%3A%2F%2Fstatic.toss.im%2Fpng-icons%2Fsecurities%2Ficn-sec-fill-035720.png" alt="카카오" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>카</div>'">
+        </div>
+        <div>
+          <div class="stock-name">카카오</div>
+          <div class="stock-fullname">035720</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">46,900원</div>
+        <div class="stock-change change-down">
+          ▼ 6.20%
+        </div>
+      </div>
+    </div>
+    
   </div>
 
-  {% if kr_market_news %}
+  
   <div class="market-news">
     <div class="market-news-title">📰 KR Market News</div>
-    {% for news in kr_market_news %}
-    <a href="{{ news.link }}" target="_blank" class="market-news-item">
-      <div class="market-news-headline">{{ news.title }}</div>
-      <div class="market-news-meta">{{ news.publisher }}{% if news.time %} · {{ news.time }}{% endif %}</div>
+    
+    <a href="https://n.news.naver.com/mnews/article/008/0005334489" target="_blank" class="market-news-item">
+      <div class="market-news-headline">파업 갈림길서 다시 마주 앉은 삼성전자 노사…임금 교섭 재개</div>
+      <div class="market-news-meta">머니투데이 · 3월 24일 오후 5시 22분</div>
     </a>
-    {% endfor %}
+    
+    <a href="https://n.news.naver.com/mnews/article/015/0005266334" target="_blank" class="market-news-item">
+      <div class="market-news-headline">대기업 이사회 의장은 금융위원장 &#39;전성시대&#39;</div>
+      <div class="market-news-meta">한국경제 · 3월 24일 오후 5시 21분</div>
+    </a>
+    
+    <a href="https://n.news.naver.com/mnews/article/015/0005266328" target="_blank" class="market-news-item">
+      <div class="market-news-headline">과기부, 엔비디아 칩 1.5만장 확보</div>
+      <div class="market-news-meta">한국경제 · 3월 24일 오후 5시 19분</div>
+    </a>
+    
   </div>
-  {% endif %}
+  
 
-  {% if ai_comment %}
-  <div class="section-label">🤖 AI Analysis</div>
-  <div class="ai-card">
-    <div class="ai-header">
-      <span class="ai-title">시황 분석</span>
-      <span class="ai-badge">✦ Claude</span>
-    </div>
-    <div class="ai-comment">{{ ai_comment }}</div>
-  </div>
-  {% endif %}
+  
 
   <div class="footer">
     Daily Stock Bot · GitHub Actions<br>
-    데이터 기준: {{ generated_at }}<br>
+    데이터 기준: 2026-03-24 17:27 KST<br>
     본 리포트는 투자 권유가 아닙니다
   </div>
 
@@ -829,58 +922,12 @@ body.light .footer { color: #8E8E93; }
       chartObj.timeScale().fitContent();
     }
 
-    function createSparkline(el) {
-      const history = JSON.parse(el.dataset.history || '[]');
-      const change = parseFloat(el.dataset.change) || 0;
-
-      if (history.length < 2) return;
-
-      const chart = LightweightCharts.createChart(el, {
-        width: el.clientWidth,
-        height: el.clientHeight,
-        layout: {
-          background: { type: 'solid', color: 'transparent' },
-          textColor: 'transparent',
-        },
-        grid: {
-          vertLines: { visible: false },
-          horzLines: { visible: false },
-        },
-        rightPriceScale: { visible: false },
-        timeScale: { visible: false },
-        handleScroll: false,
-        handleScale: false,
-        crosshair: { mode: LightweightCharts.CrosshairMode.Hidden },
-      });
-
-      const lineColor = change >= 0 ? '#FF453A' : '#0A84FF';
-
-      const series = chart.addLineSeries({
-        color: lineColor,
-        lineWidth: 2,
-        priceLineVisible: false,
-        lastValueVisible: false,
-        crosshairMarkerVisible: false,
-      });
-
-      const data = history.map(d => ({ time: d.date, value: d.price }));
-      series.setData(data);
-      chart.timeScale().fitContent();
-
-      return chart;
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme === 'light') {
         document.body.classList.add('light');
         document.querySelector('.theme-icon').textContent = '🌙';
       }
-
-      // 스파크라인 차트 렌더링
-      document.querySelectorAll('.sparkline').forEach(el => {
-        createSparkline(el);
-      });
 
       const firstUs = document.querySelector('.stock-row[data-market="us"]');
       const firstKr = document.querySelector('.stock-row[data-market="kr"]');

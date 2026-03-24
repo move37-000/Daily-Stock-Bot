@@ -1,11 +1,19 @@
 from src.config import US_TICKERS, KR_TICKERS, SLACK_WEBHOOK_URL
-from src.crawler import fetch_us_stocks, fetch_kr_stocks
+from src.repository import init_db, save_stock_price
 from src.service import ReportService, send_slack_message
-from src.repository import init_db, save_stock_price, get_stock_history
-from src.crawler import fetch_us_stocks, fetch_kr_stocks, fetch_us_index, fetch_kr_index
+from src.crawler import fetch_us_index, fetch_kr_index
+from src.crawler.us_stock import fetch_us_stocks, fetch_us_market_news
+from src.crawler.kr_stock import fetch_kr_stocks, fetch_kr_market_news
 
-# 아이콘 색상 로테이션
-COLORS = ["blue", "green", "purple", "orange", "red"]
+US_DOMAINS = {
+    'AAPL': 'apple.com',
+    'NVDA': 'nvidia.com',
+    'TSLA': 'tesla.com',
+    'META': 'meta.com',
+    'GOOGL': 'google.com',
+    'MSFT': 'microsoft.com',
+    'AMZN': 'amazon.com',
+}
 
 
 def save_us_stocks(results):
@@ -73,8 +81,7 @@ def transform_us_data(us_results, us_index):
     }
 
     us_stocks = []
-    for i, stock in enumerate(us_results):
-        # history 데이터 정리 (날짜 오름차순)
+    for stock in us_results:
         history = []
         if stock.get('history'):
             sorted_history = sorted(stock['history'], key=lambda h: h['date'])
@@ -86,8 +93,9 @@ def transform_us_data(us_results, us_index):
             "price": f"{stock['close']:,.2f}",
             "change": stock['change'],
             "change_pct": f"{abs(stock['change_pct']):.2f}",
-            "color": COLORS[i % len(COLORS)],
-            "history": history  # Chart.js용 데이터
+            "logo": f"https://img.logo.dev/{US_DOMAINS.get(stock['symbol'], stock['symbol'].lower() + '.com')}?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&size=40&format=png",
+            "history": history,
+            "news": stock.get('news', [])[:3]
         })
 
     us_market = {
@@ -101,8 +109,7 @@ def transform_us_data(us_results, us_index):
 def transform_kr_data(kr_results, kr_index):
     """한국 크롤러 데이터 → 템플릿 데이터로 변환"""
     kr_stocks = []
-    for i, stock in enumerate(kr_results):
-        # history 데이터 정리 (날짜 오름차순)
+    for stock in kr_results:
         history = []
         if stock.get('history'):
             sorted_history = sorted(stock['history'], key=lambda h: h['date'])
@@ -114,8 +121,9 @@ def transform_kr_data(kr_results, kr_index):
             "price": f"{int(stock['close']):,}",
             "change": stock['change'],
             "change_pct": f"{abs(stock['change_pct']):.2f}",
-            "color": COLORS[i % len(COLORS)],
-            "history": history  # Chart.js용 데이터
+            "logo": f"https://thumb.tossinvest.com/image/resized/40x0/https%3A%2F%2Fstatic.toss.im%2Fpng-icons%2Fsecurities%2Ficn-sec-fill-{stock['code']}.png",
+            "history": history,
+            "news": stock.get('news', [])[:3]
         })
 
     kr_market = {
@@ -124,33 +132,6 @@ def transform_kr_data(kr_results, kr_index):
     }
 
     return kr_market, kr_stocks
-
-
-def transform_news(us_results, kr_results):
-    """뉴스 데이터 통합"""
-    news_list = []
-
-    # 미국 뉴스
-    for stock in us_results:
-        for news in stock.get('news', [])[:1]:  # 종목당 1개씩만
-            if news.get('title'):
-                news_list.append({
-                    "source": news.get('publisher', 'US News'),
-                    "time": "",
-                    "headline": news['title']
-                })
-
-    # 한국 뉴스
-    for stock in kr_results:
-        for news in stock.get('news', [])[:1]:
-            if news.get('title'):
-                news_list.append({
-                    "source": "네이버 금융",
-                    "time": "",
-                    "headline": news['title']
-                })
-
-    return news_list[:6]  # 최대 6개
 
 
 def main():
@@ -165,23 +146,27 @@ def main():
     us_results = fetch_us_stocks(US_TICKERS)
     kr_results = fetch_kr_stocks(KR_TICKERS)
 
-    # 1-1. 지수 데이터 수집
+    # 2. 지수 데이터 수집
     print("지수 데이터 수집 중...")
     us_index = fetch_us_index()
     kr_index = fetch_kr_index()
 
-    # 2. DB 저장
+    # 3. 시장 뉴스 수집
+    print("시장 뉴스 수집 중...")
+    us_market_news = fetch_us_market_news()
+    kr_market_news = fetch_kr_market_news()
+
+    # 4. DB 저장
     print("DB 저장 중...")
     save_us_stocks(us_results)
     save_kr_stocks(kr_results)
 
-    # 3. 데이터 변환 (크롤러 → 템플릿)
+    # 5. 데이터 변환
     print("데이터 변환 중...")
     us_market, us_stocks = transform_us_data(us_results, us_index)
     kr_market, kr_stocks = transform_kr_data(kr_results, kr_index)
-    news_list = transform_news(us_results, kr_results)
 
-    # 4. HTML 리포트 생성
+    # 6. HTML 리포트 생성
     print("리포트 생성 중...")
     try:
         service = ReportService()
@@ -190,14 +175,15 @@ def main():
             kr_market=kr_market,
             us_stocks=us_stocks,
             kr_stocks=kr_stocks,
-            news_list=news_list,
+            us_market_news=us_market_news,
+            kr_market_news=kr_market_news,
             ai_comment=None
         )
         print(f"리포트 저장 완료: {filename}")
     except Exception as e:
         print(f"[에러] 리포트 생성 실패: {e}")
 
-    # 5. Slack 알림
+    # 7. Slack 알림
     print("Slack 전송 중...")
     try:
         if send_slack_message(SLACK_WEBHOOK_URL, us_results, kr_results):
