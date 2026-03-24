@@ -29,6 +29,7 @@ jobs:
       - name: 리포트 생성
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python run.py
 
       - name: 리포트 커밋 및 푸시

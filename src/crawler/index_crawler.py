@@ -1,4 +1,8 @@
+import logging
+
 import yfinance as yf
+
+logger = logging.getLogger(__name__)
 
 
 def fetch_us_index():
@@ -44,7 +48,7 @@ def fetch_us_index():
             }
 
         except Exception as e:
-            print(f"  [에러] {name} 지수 조회 실패: {e}")
+            logger.error(f"미국 지수 조회 실패 ({name}): {e}")
             result[name] = {"price": "-", "change": 0, "change_pct": "-", "history": []}
 
     return result
@@ -94,7 +98,7 @@ def fetch_kr_index():
             }
 
         except Exception as e:
-            print(f"  [에러] {name} 지수 조회 실패: {e}")
+            logger.error(f"한국 지수 조회 실패 ({name}): {e}")
             result[name] = {"price": "-", "change": 0, "change_pct": "-", "history": []}
 
     return result
@@ -133,5 +137,5 @@ def fetch_usd_krw():
         }
 
     except Exception as e:
-        print(f"  [에러] USD/KRW 환율 조회 실패: {e}")
+        logger.error(f"USD/KRW 환율 조회 실패: {e}")
         return {"price": "-", "change": 0, "change_pct": "-", "history": []}

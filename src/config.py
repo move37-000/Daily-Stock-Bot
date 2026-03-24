@@ -3,8 +3,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+GITHUB_USERNAME = "move37-000"
+REPO_NAME = "Daily-Stock-Bot"
+REPORT_URL = f"https://{GITHUB_USERNAME}.github.io/{REPO_NAME}/"
+
 # 환경변수
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 # 미국 주식 관심 종목
 US_TICKERS = ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA"]

@@ -1,6 +1,10 @@
-from pykrx import stock as krx
+import logging
 from datetime import datetime, timedelta
+
 import requests
+from pykrx import stock as krx
+
+logger = logging.getLogger(__name__)
 
 
 def fetch_kr_news(code, limit=3):
@@ -35,17 +39,18 @@ def fetch_kr_news(code, limit=3):
                             ampm = '오후'
                             display_hour = hour - 12 if hour != 12 else 12
                         time_str = f"{month}월 {day}일 {ampm} {display_hour}시 {minute}분"
-                    except:
-                        pass
+                    except ValueError as e:
+                        logger.debug(f"뉴스 시간 파싱 실패 ({code}): {e}")
 
                 news.append({
                     'title': article.get('title', ''),
                     'link': f"https://n.news.naver.com/mnews/article/{office_id}/{article_id}",
-                    'time': time_str  # 추가
+                    'time': time_str
                 })
 
         return news
-    except Exception:
+    except Exception as e:
+        logger.warning(f"한국 종목 뉴스 조회 실패 ({code}): {e}")
         return []
 
 def fetch_kr_stocks(tickers):
@@ -68,7 +73,7 @@ def fetch_kr_stocks(tickers):
             )
 
             if history.empty:
-                print(f"  [경고] {name}: 데이터 없음")
+                logger.warning(f"한국 주식 데이터 없음: {name}")
                 continue
 
             # 최근 5일치만
@@ -107,7 +112,7 @@ def fetch_kr_stocks(tickers):
             })
 
         except Exception as e:
-            print(f"  [에러] {name}: {e}")
+            logger.error(f"한국 주식 조회 실패 ({name}): {e}")
             continue
 
     return results
@@ -145,8 +150,8 @@ def fetch_kr_market_news():
                                 ampm = '오후'
                                 display_hour = hour - 12 if hour != 12 else 12
                             time_str = f"{month}월 {day}일 {ampm} {display_hour}시 {minute}분"
-                        except:
-                            pass
+                        except ValueError as e:
+                            logger.debug(f"시장 뉴스 시간 파싱 실패 ({code}): {e}")
 
                     news.append({
                         'title': article.get('title', ''),
@@ -155,7 +160,7 @@ def fetch_kr_market_news():
                         'link': f"https://n.news.naver.com/mnews/article/{article.get('officeId', '')}/{article.get('articleId', '')}"
                     })
         except Exception as e:
-            print(f"  [에러] 시장 뉴스 ({code}): {e}")
+            logger.warning(f"한국 시장 뉴스 조회 실패 ({code}): {e}")
             continue
 
     return news

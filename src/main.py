@@ -1,10 +1,25 @@
-from src.config import US_TICKERS, KR_TICKERS, SLACK_WEBHOOK_URL
+import logging
+
+from src.config import US_TICKERS, KR_TICKERS, SLACK_WEBHOOK_URL, DISCORD_WEBHOOK_URL, REPORT_URL
 from src.repository import init_db, save_stock_price
-from src.service import ReportService, send_slack_message
-from src.crawler import fetch_us_index, fetch_kr_index
-from src.crawler.us_stock import fetch_us_stocks, fetch_us_market_news
-from src.crawler.kr_stock import fetch_kr_stocks, fetch_kr_market_news
-from src.crawler.index_crawler import fetch_us_index, fetch_kr_index, fetch_usd_krw
+from src.service import ReportService, send_slack_message, send_discord_message
+from src.crawler import (
+    fetch_us_stocks,
+    fetch_kr_stocks,
+    fetch_us_index,
+    fetch_kr_index,
+    fetch_usd_krw,
+    fetch_us_market_news,
+    fetch_kr_market_news,
+)
+
+# 로깅 설정
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 US_DOMAINS = {
     'AAPL': 'apple.com',
@@ -40,7 +55,7 @@ def save_us_stocks(results):
                     collected_at=day['date']
                 )
                 if saved:
-                    print(f"  저장: {stock['symbol']} ({day['date']})")
+                    logger.debug(f"저장: {stock['symbol']} ({day['date']})")
 
 
 def save_kr_stocks(results):
@@ -66,7 +81,7 @@ def save_kr_stocks(results):
                     collected_at=day['date']
                 )
                 if saved:
-                    print(f"  저장: {stock['name']} ({day['date']})")
+                    logger.debug(f"저장: {stock['name']} ({day['date']})")
 
 
 def transform_us_data(us_results, us_index):
@@ -139,38 +154,38 @@ def main():
     try:
         init_db()
     except Exception as e:
-        print(f"[에러] DB 초기화 실패: {e}")
+        logger.error(f"DB 초기화 실패: {e}")
         return
 
     # 1. 데이터 수집
-    print("데이터 수집 중...")
+    logger.info("데이터 수집 중...")
     us_results = fetch_us_stocks(US_TICKERS)
     kr_results = fetch_kr_stocks(KR_TICKERS)
 
     # 2. 지수 데이터 수집
-    print("지수 데이터 수집 중...")
+    logger.info("지수 데이터 수집 중...")
     us_index = fetch_us_index()
     kr_index = fetch_kr_index()
 
     # 3. 시장 뉴스 수집
-    print("시장 뉴스 수집 중...")
+    logger.info("시장 뉴스 수집 중...")
     us_market_news = fetch_us_market_news()
     kr_market_news = fetch_kr_market_news()
 
     usd_krw = fetch_usd_krw()
 
     # 4. DB 저장
-    print("DB 저장 중...")
+    logger.info("DB 저장 중...")
     save_us_stocks(us_results)
     save_kr_stocks(kr_results)
 
     # 5. 데이터 변환
-    print("데이터 변환 중...")
+    logger.info("데이터 변환 중...")
     us_market, us_stocks = transform_us_data(us_results, us_index)
     kr_market, kr_stocks = transform_kr_data(kr_results, kr_index)
 
     # 6. HTML 리포트 생성
-    print("리포트 생성 중...")
+    logger.info("리포트 생성 중...")
     try:
         service = ReportService()
         filename = service.generate_report(
@@ -180,22 +195,49 @@ def main():
             kr_stocks=kr_stocks,
             us_market_news=us_market_news,
             kr_market_news=kr_market_news,
-            usd_krw=usd_krw,  # 추가
+            usd_krw=usd_krw,
             ai_comment=None
         )
-        print(f"리포트 저장 완료: {filename}")
+        logger.info(f"리포트 저장 완료: {filename}")
     except Exception as e:
-        print(f"[에러] 리포트 생성 실패: {e}")
+        logger.error(f"리포트 생성 실패: {e}")
 
     # 7. Slack 알림
-    print("Slack 전송 중...")
+    logger.info("Slack 전송 중...")
     try:
-        if send_slack_message(SLACK_WEBHOOK_URL, us_results, kr_results):
-            print("Slack 전송 완료!")
+        if send_slack_message(
+                SLACK_WEBHOOK_URL,
+                us_results,
+                kr_results,
+                us_market=us_market,
+                kr_market=kr_market,
+                usd_krw=usd_krw,
+                report_url=REPORT_URL
+        ):
+            logger.info("Slack 전송 완료!")
         else:
-            print("[경고] Slack 전송 실패")
+            logger.warning("Slack 전송 실패")
     except Exception as e:
-        print(f"[에러] Slack 전송 실패: {e}")
+        logger.error(f"Slack 전송 실패: {e}")
+
+    # 8. Discord 알림
+    if DISCORD_WEBHOOK_URL:
+        logger.info("Discord 전송 중...")
+        try:
+            if send_discord_message(
+                    DISCORD_WEBHOOK_URL,
+                    us_results,
+                    kr_results,
+                    us_market=us_market,
+                    kr_market=kr_market,
+                    usd_krw=usd_krw,
+                    report_url=REPORT_URL
+            ):
+                logger.info("Discord 전송 완료!")
+            else:
+                logger.warning("Discord 전송 실패")
+        except Exception as e:
+            logger.error(f"Discord 전송 실패: {e}")
 
 
 if __name__ == "__main__":

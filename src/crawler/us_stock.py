@@ -1,5 +1,9 @@
-import datetime
+import logging
+from datetime import datetime
+
 import yfinance as yf
+
+logger = logging.getLogger(__name__)
 
 def fetch_us_stocks(tickers):
     """미국 주식 데이터 수집 (5일치)"""
@@ -11,7 +15,7 @@ def fetch_us_stocks(tickers):
             history = ticker.history(period="5d")
 
             if history.empty:
-                print(f"  [경고] {symbol}: 데이터 없음")
+                logger.warning(f"미국 주식 데이터 없음: {symbol}")
                 continue
 
             # 전체 5일치 데이터 저장
@@ -44,7 +48,6 @@ def fetch_us_stocks(tickers):
                     time_str = ''
                     if pub_date:
                         try:
-                            from datetime import datetime
                             dt = datetime.strptime(pub_date, "%Y-%m-%dT%H:%M:%SZ")
                             hour = dt.hour
                             minute = dt.minute
@@ -55,18 +58,18 @@ def fetch_us_stocks(tickers):
                                 ampm = '오후'
                                 display_hour = hour - 12 if hour != 12 else 12
                             time_str = f"{dt.month}월 {dt.day}일 {ampm} {display_hour}시 {minute}분"
-                        except:
-                            pass
+                        except ValueError as e:
+                            logger.debug(f"뉴스 시간 파싱 실패 ({symbol}): {e}")
 
                     news.append({
                         'title': content.get('title', ''),
                         'link': content.get('clickThroughUrl', {}).get('url', '') or content.get('canonicalUrl',
                                                                                                  {}).get('url', ''),
                         'publisher': content.get('provider', {}).get('displayName', ''),
-                        'time': time_str  # 추가
+                        'time': time_str
                     })
-            except Exception:
-                pass  # 뉴스 실패해도 주가 데이터는 유지
+            except Exception as e:
+                logger.warning(f"뉴스 조회 실패 ({symbol}): {e}")
 
             results.append({
                 'symbol': symbol,
@@ -78,7 +81,7 @@ def fetch_us_stocks(tickers):
             })
 
         except Exception as e:
-            print(f"  [에러] {symbol}: {e}")
+            logger.error(f"미국 주식 조회 실패 ({symbol}): {e}")
             continue
 
     return results
@@ -106,8 +109,8 @@ def fetch_us_market_news():
                         ampm = '오후'
                         display_hour = hour - 12 if hour != 12 else 12
                     time_str = f"{dt.month}월 {dt.day}일 {ampm} {display_hour}시 {minute}분"
-                except:
-                    pass
+                except ValueError as e:
+                    logger.debug(f"시장 뉴스 시간 파싱 실패: {e}")
 
             news.append({
                 'title': content.get('title', ''),
@@ -117,5 +120,5 @@ def fetch_us_market_news():
             })
         return news
     except Exception as e:
-        print(f"  [에러] 미국 시장 뉴스: {e}")
+        logger.error(f"미국 시장 뉴스 조회 실패: {e}")
         return []
