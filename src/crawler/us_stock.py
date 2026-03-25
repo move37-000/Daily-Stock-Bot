@@ -110,6 +110,6 @@ def _fetch_ticker_news(ticker, symbol: str) -> list[dict[str, Any]]:
 def _get_news_link(content: dict) -> str:
     """뉴스 링크 추출 (clickThroughUrl 우선, canonicalUrl 폴백)"""
     return (
-            content.get('clickThroughUrl', {}).get('url', '') or
-            content.get('canonicalUrl', {}).get('url', '')
+        content.get('clickThroughUrl', {}).get('url', '') or
+        content.get('canonicalUrl', {}).get('url', '')
     )

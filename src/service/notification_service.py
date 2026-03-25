@@ -26,13 +26,13 @@ class NotificationData:
 
 
 def send_slack_message(
-        webhook_url: str,
-        us_results: list[dict[str, Any]],
-        kr_results: list[dict[str, Any]],
-        us_market: dict[str, Any] | None = None,
-        kr_market: dict[str, Any] | None = None,
-        usd_krw: dict[str, Any] | None = None,
-        report_url: str | None = None
+    webhook_url: str,
+    us_results: list[dict[str, Any]],
+    kr_results: list[dict[str, Any]],
+    us_market: dict[str, Any] | None = None,
+    kr_market: dict[str, Any] | None = None,
+    usd_krw: dict[str, Any] | None = None,
+    report_url: str | None = None
 ) -> bool:
     """
     Slack으로 주식 리포트 전송
@@ -58,13 +58,13 @@ def send_slack_message(
 
 
 def send_discord_message(
-        webhook_url: str,
-        us_results: list[dict[str, Any]],
-        kr_results: list[dict[str, Any]],
-        us_market: dict[str, Any] | None = None,
-        kr_market: dict[str, Any] | None = None,
-        usd_krw: dict[str, Any] | None = None,
-        report_url: str | None = None
+    webhook_url: str,
+    us_results: list[dict[str, Any]],
+    kr_results: list[dict[str, Any]],
+    us_market: dict[str, Any] | None = None,
+    kr_market: dict[str, Any] | None = None,
+    usd_krw: dict[str, Any] | None = None,
+    report_url: str | None = None
 ) -> bool:
     """
     Discord로 주식 리포트 전송
@@ -99,8 +99,8 @@ def send_discord_message(
 # =============================================================================
 
 def _prepare_notification_data(
-        us_results: list[dict[str, Any]],
-        kr_results: list[dict[str, Any]]
+    us_results: list[dict[str, Any]],
+    kr_results: list[dict[str, Any]]
 ) -> NotificationData:
     """알림용 공통 데이터 준비"""
     today = datetime.now().strftime("%Y-%m-%d")
@@ -113,10 +113,10 @@ def _prepare_notification_data(
 
     # Top 상승/하락 찾기
     all_stocks = [
-                     {'name': s['symbol'], 'pct': s['change_pct']} for s in us_results
-                 ] + [
-                     {'name': s['name'], 'pct': s['change_pct']} for s in kr_results
-                 ]
+        {'name': s['symbol'], 'pct': s['change_pct']} for s in us_results
+    ] + [
+        {'name': s['name'], 'pct': s['change_pct']} for s in kr_results
+    ]
 
     top_gainer = max(all_stocks, key=lambda x: x['pct'])
     top_loser = min(all_stocks, key=lambda x: x['pct'])
@@ -133,9 +133,9 @@ def _prepare_notification_data(
 
 
 def _format_index_line(
-        index_data: dict[str, Any],
-        name: str,
-        use_backticks: bool = False
+    index_data: dict[str, Any],
+    name: str,
+    use_backticks: bool = False
 ) -> str:
     """지수 한 줄 포맷팅"""
     emoji = "🔴" if index_data.get('change', 0) < 0 else "🟢"
@@ -149,10 +149,10 @@ def _format_index_line(
 
 
 def _build_slack_message(
-        data: NotificationData,
-        us_market: dict[str, Any] | None,
-        kr_market: dict[str, Any] | None,
-        usd_krw: dict[str, Any] | None
+    data: NotificationData,
+    us_market: dict[str, Any] | None,
+    kr_market: dict[str, Any] | None,
+    usd_krw: dict[str, Any] | None
 ) -> str:
     """Slack 메시지 텍스트 생성"""
     lines = [f"📊 *일일 주식 리포트* | {data.today}", "", ""]
@@ -178,8 +178,7 @@ def _build_slack_message(
     lines.append("*오늘의 요약*")
     lines.append("")
     lines.append(f"🇺🇸 미국 {data.us_up}↑ {data.us_down}↓ | 🇰🇷 한국 {data.kr_up}↑ {data.kr_down}↓")
-    lines.append(
-        f"📈 {data.top_gainer['name']} {data.top_gainer['pct']:+.2f}% | 📉 {data.top_loser['name']} {data.top_loser['pct']:+.2f}%")
+    lines.append(f"📈 {data.top_gainer['name']} {data.top_gainer['pct']:+.2f}% | 📉 {data.top_loser['name']} {data.top_loser['pct']:+.2f}%")
     lines.append("")
 
     return "\n".join(lines)
@@ -219,11 +218,11 @@ def _build_slack_blocks(message: str, report_url: str | None) -> list[dict[str, 
 
 
 def _build_discord_description(
-        data: NotificationData,
-        us_market: dict[str, Any] | None,
-        kr_market: dict[str, Any] | None,
-        usd_krw: dict[str, Any] | None,
-        report_url: str | None
+    data: NotificationData,
+    us_market: dict[str, Any] | None,
+    kr_market: dict[str, Any] | None,
+    usd_krw: dict[str, Any] | None,
+    report_url: str | None
 ) -> str:
     """Discord Embed description 생성"""
     lines = []
@@ -249,8 +248,7 @@ def _build_discord_description(
 
     lines.append("**📊 오늘의 요약**")
     lines.append(f"🇺🇸 {data.us_up}↑ {data.us_down}↓ │ 🇰🇷 {data.kr_up}↑ {data.kr_down}↓")
-    lines.append(
-        f"📈 {data.top_gainer['name']} `{data.top_gainer['pct']:+.2f}%` │ 📉 {data.top_loser['name']} `{data.top_loser['pct']:+.2f}%`")
+    lines.append(f"📈 {data.top_gainer['name']} `{data.top_gainer['pct']:+.2f}%` │ 📉 {data.top_loser['name']} `{data.top_loser['pct']:+.2f}%`")
 
     if report_url:
         lines.append("")

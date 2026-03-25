@@ -43,13 +43,13 @@ def init_db() -> None:
 
 
 def save_stock_price(
-        symbol: str,
-        name: str,
-        market: str,
-        close_price: float,
-        change: float,
-        change_pct: float,
-        collected_at: str | None = None
+    symbol: str,
+    name: str,
+    market: str,
+    close_price: float,
+    change: float,
+    change_pct: float,
+    collected_at: str | None = None
 ) -> bool:
     """
     주가 데이터 저장

@@ -21,15 +21,15 @@ class ReportService:
         )
 
     def generate_report(
-            self,
-            us_market: dict[str, Any],
-            kr_market: dict[str, Any],
-            us_stocks: list[dict[str, Any]],
-            kr_stocks: list[dict[str, Any]],
-            us_market_news: list[dict[str, Any]],
-            kr_market_news: list[dict[str, Any]],
-            usd_krw: dict[str, Any] | None = None,
-            ai_comment: str | None = None
+        self,
+        us_market: dict[str, Any],
+        kr_market: dict[str, Any],
+        us_stocks: list[dict[str, Any]],
+        kr_stocks: list[dict[str, Any]],
+        us_market_news: list[dict[str, Any]],
+        kr_market_news: list[dict[str, Any]],
+        usd_krw: dict[str, Any] | None = None,
+        ai_comment: str | None = None
     ) -> str:
         """
         HTML 리포트 생성

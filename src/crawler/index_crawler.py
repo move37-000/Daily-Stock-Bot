@@ -37,8 +37,8 @@ def fetch_usd_krw() -> dict[str, Any]:
 
 
 def _fetch_multiple_indices(
-        symbols: dict[str, str],
-        market_name: str
+    symbols: dict[str, str],
+    market_name: str
 ) -> dict[str, dict[str, Any]]:
     """
     여러 지수를 한 번에 조회

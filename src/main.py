@@ -1,5 +1,9 @@
+"""
+Daily Stock Bot 메인 실행 모듈
+
+각 서비스를 오케스트레이션하여 주식 리포트를 생성합니다.
+"""
 import logging
-from typing import Any
 
 from src.config import (
     US_TICKERS,
@@ -7,15 +11,8 @@ from src.config import (
     SLACK_WEBHOOK_URL,
     DISCORD_WEBHOOK_URL,
     REPORT_URL,
-    US_STOCK_NAMES,
-    US_STOCK_DOMAINS,
-    LOGO_API_TOKEN,
-    LOGO_API_URL,
-    TOSS_LOGO_URL,
-    NEWS_LIMIT,
 )
-from src.repository import init_db, save_stock_price
-from src.service import ReportService, send_slack_message, send_discord_message
+from src.repository import init_db
 from src.crawler import (
     fetch_us_stocks,
     fetch_kr_stocks,
@@ -24,6 +21,14 @@ from src.crawler import (
     fetch_usd_krw,
     fetch_us_market_news,
     fetch_kr_market_news,
+)
+from src.service import (
+    ReportService,
+    send_slack_message,
+    send_discord_message,
+    save_stocks,
+    transform_us_data,
+    transform_kr_data,
 )
 
 # 로깅 설정
@@ -35,132 +40,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def save_us_stocks(results: list[dict[str, Any]]) -> None:
-    """미국 주식 DB 저장 (5일치)"""
-    for stock in results:
-        if 'history' in stock:
-            for i, day in enumerate(stock['history']):
-                if i == 0:
-                    change = 0
-                    change_pct = 0
-                else:
-                    prev_close = stock['history'][i - 1]['close']
-                    change = day['close'] - prev_close
-                    change_pct = (change / prev_close) * 100
-
-                saved = save_stock_price(
-                    symbol=stock['symbol'],
-                    name=stock['symbol'],
-                    market='US',
-                    close_price=day['close'],
-                    change=change,
-                    change_pct=change_pct,
-                    collected_at=day['date']
-                )
-                if saved:
-                    logger.debug(f"저장: {stock['symbol']} ({day['date']})")
-
-
-def save_kr_stocks(results: list[dict[str, Any]]) -> None:
-    """한국 주식 DB 저장 (5일치)"""
-    for stock in results:
-        if 'history' in stock:
-            for i, day in enumerate(stock['history']):
-                if i == 0:
-                    change = 0
-                    change_pct = 0
-                else:
-                    prev_close = stock['history'][i - 1]['close']
-                    change = day['close'] - prev_close
-                    change_pct = (change / prev_close) * 100
-
-                saved = save_stock_price(
-                    symbol=stock['code'],
-                    name=stock['name'],
-                    market='KR',
-                    close_price=day['close'],
-                    change=change,
-                    change_pct=change_pct,
-                    collected_at=day['date']
-                )
-                if saved:
-                    logger.debug(f"저장: {stock['name']} ({day['date']})")
-
-
-def _get_us_logo_url(symbol: str) -> str:
-    """미국 주식 로고 URL 생성"""
-    domain = US_STOCK_DOMAINS.get(symbol, f"{symbol.lower()}.com")
-    return LOGO_API_URL.format(domain=domain, token=LOGO_API_TOKEN)
-
-
-def _get_kr_logo_url(code: str) -> str:
-    """한국 주식 로고 URL 생성"""
-    return TOSS_LOGO_URL.format(code=code)
-
-
-def transform_us_data(
-    us_results: list[dict[str, Any]],
-    us_index: dict[str, Any]
-) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    """미국 크롤러 데이터 → 템플릿 데이터로 변환"""
-    us_stocks = []
-    for stock in us_results:
-        history = []
-        if stock.get('history'):
-            sorted_history = sorted(stock['history'], key=lambda h: h['date'])
-            history = [{"date": h['date'], "price": h['close']} for h in sorted_history]
-
-        us_stocks.append({
-            "symbol": stock['symbol'],
-            "name": US_STOCK_NAMES.get(stock['symbol'], stock['symbol']),
-            "price": f"{stock['close']:,.2f}",
-            "change": stock['change'],
-            "change_pct": f"{abs(stock['change_pct']):.2f}",
-            "logo": _get_us_logo_url(stock['symbol']),
-            "history": history,
-            "news": stock.get('news', [])[:NEWS_LIMIT]
-        })
-
-    us_market = {
-        "sp500": us_index.get("sp500", {"price": "-", "change": 0, "change_pct": "-"}),
-        "nasdaq": us_index.get("nasdaq", {"price": "-", "change": 0, "change_pct": "-"}),
-    }
-
-    return us_market, us_stocks
-
-
-def transform_kr_data(
-    kr_results: list[dict[str, Any]],
-    kr_index: dict[str, Any]
-) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    """한국 크롤러 데이터 → 템플릿 데이터로 변환"""
-    kr_stocks = []
-    for stock in kr_results:
-        history = []
-        if stock.get('history'):
-            sorted_history = sorted(stock['history'], key=lambda h: h['date'])
-            history = [{"date": h['date'], "price": h['close']} for h in sorted_history]
-
-        kr_stocks.append({
-            "symbol": stock['name'],
-            "name": stock['code'],
-            "price": f"{int(stock['close']):,}",
-            "change": stock['change'],
-            "change_pct": f"{abs(stock['change_pct']):.2f}",
-            "logo": _get_kr_logo_url(stock['code']),
-            "history": history,
-            "news": stock.get('news', [])[:NEWS_LIMIT]
-        })
-
-    kr_market = {
-        "kospi": kr_index.get("kospi", {"price": "-", "change": 0, "change_pct": "-"}),
-        "kosdaq": kr_index.get("kosdaq", {"price": "-", "change": 0, "change_pct": "-"}),
-    }
-
-    return kr_market, kr_stocks
-
-
-def main():
+def main() -> None:
+    """메인 실행 함수"""
+    # 0. DB 초기화
     try:
         init_db()
     except Exception as e:
@@ -176,18 +58,16 @@ def main():
     logger.info("지수 데이터 수집 중...")
     us_index = fetch_us_index()
     kr_index = fetch_kr_index()
+    usd_krw = fetch_usd_krw()
 
     # 3. 시장 뉴스 수집
     logger.info("시장 뉴스 수집 중...")
     us_market_news = fetch_us_market_news()
     kr_market_news = fetch_kr_market_news()
 
-    usd_krw = fetch_usd_krw()
-
     # 4. DB 저장
     logger.info("DB 저장 중...")
-    save_us_stocks(us_results)
-    save_kr_stocks(kr_results)
+    save_stocks(us_results, kr_results)
 
     # 5. 데이터 변환
     logger.info("데이터 변환 중...")
@@ -195,6 +75,18 @@ def main():
     kr_market, kr_stocks = transform_kr_data(kr_results, kr_index)
 
     # 6. HTML 리포트 생성
+    _generate_report(us_market, kr_market, us_stocks, kr_stocks, 
+                     us_market_news, kr_market_news, usd_krw)
+
+    # 7. 알림 전송
+    _send_notifications(us_results, kr_results, us_market, kr_market, usd_krw)
+
+
+def _generate_report(
+    us_market, kr_market, us_stocks, kr_stocks,
+    us_market_news, kr_market_news, usd_krw
+) -> None:
+    """HTML 리포트 생성"""
     logger.info("리포트 생성 중...")
     try:
         service = ReportService()
@@ -212,17 +104,22 @@ def main():
     except Exception as e:
         logger.error(f"리포트 생성 실패: {e}")
 
-    # 7. Slack 알림
+
+def _send_notifications(
+    us_results, kr_results, us_market, kr_market, usd_krw
+) -> None:
+    """Slack/Discord 알림 전송"""
+    # Slack
     logger.info("Slack 전송 중...")
     try:
         if send_slack_message(
-                SLACK_WEBHOOK_URL,
-                us_results,
-                kr_results,
-                us_market=us_market,
-                kr_market=kr_market,
-                usd_krw=usd_krw,
-                report_url=REPORT_URL
+            SLACK_WEBHOOK_URL,
+            us_results,
+            kr_results,
+            us_market=us_market,
+            kr_market=kr_market,
+            usd_krw=usd_krw,
+            report_url=REPORT_URL
         ):
             logger.info("Slack 전송 완료!")
         else:
@@ -230,18 +127,18 @@ def main():
     except Exception as e:
         logger.error(f"Slack 전송 실패: {e}")
 
-    # 8. Discord 알림
+    # Discord
     if DISCORD_WEBHOOK_URL:
         logger.info("Discord 전송 중...")
         try:
             if send_discord_message(
-                    DISCORD_WEBHOOK_URL,
-                    us_results,
-                    kr_results,
-                    us_market=us_market,
-                    kr_market=kr_market,
-                    usd_krw=usd_krw,
-                    report_url=REPORT_URL
+                DISCORD_WEBHOOK_URL,
+                us_results,
+                kr_results,
+                us_market=us_market,
+                kr_market=kr_market,
+                usd_krw=usd_krw,
+                report_url=REPORT_URL
             ):
                 logger.info("Discord 전송 완료!")
             else:
