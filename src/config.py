@@ -25,33 +25,47 @@ NEWS_LIMIT = 3    # 뉴스 조회 개수
 # =============================================================================
 # 미국 주식 설정
 # =============================================================================
-US_TICKERS: list[str] = ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA"]
+# US_TICKERS: list[str] = ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA"]
+US_TICKERS = ["NVDA", "QQQ", "SCHD"]
 
 # 미국 종목 회사명 매핑
-US_STOCK_NAMES: dict[str, str] = {
-    "AAPL": "Apple Inc.",
-    "MSFT": "Microsoft Corp.",
-    "GOOGL": "Alphabet Inc.",
-    "TSLA": "Tesla Inc.",
-    "NVDA": "NVIDIA Corp.",
+# US_STOCK_NAMES: dict[str, str] = {
+#     "AAPL": "Apple Inc.",
+#     "MSFT": "Microsoft Corp.",
+#     "GOOGL": "Alphabet Inc.",
+#     "TSLA": "Tesla Inc.",
+#     "NVDA": "NVIDIA Corp.",
+# }
+US_STOCK_NAMES = {
+    "NVDA": "NVIDIA Corporation",
+    "QQQ": "Invesco QQQ Trust",
+    "SCHD": "Schwab US Dividend Equity ETF",
 }
 
 # 미국 종목 도메인 매핑 (로고 URL용)
-US_STOCK_DOMAINS: dict[str, str] = {
-    "AAPL": "apple.com",
-    "MSFT": "microsoft.com",
-    "GOOGL": "google.com",
-    "TSLA": "tesla.com",
+# US_STOCK_DOMAINS: dict[str, str] = {
+#     "AAPL": "apple.com",
+#     "MSFT": "microsoft.com",
+#     "GOOGL": "google.com",
+#     "TSLA": "tesla.com",
+#     "NVDA": "nvidia.com",
+# }
+US_STOCK_DOMAINS = {
     "NVDA": "nvidia.com",
+    "QQQ": "invesco.com",
+    "SCHD": "schwab.com",
 }
 
 # =============================================================================
 # 한국 주식 설정
 # =============================================================================
-KR_TICKERS: dict[str, str] = {
-    "005930": "삼성전자",
-    "000660": "SK하이닉스",
-    "035720": "카카오",
+# KR_TICKERS: dict[str, str] = {
+#     "005930": "삼성전자",
+#     "000660": "SK하이닉스",
+#     "035720": "카카오",
+# }
+KR_TICKERS = {
+    "471760": "TIGER AI반도체핵심공정",
 }
 
 # 한국 시장 뉴스 조회용 대형주 코드

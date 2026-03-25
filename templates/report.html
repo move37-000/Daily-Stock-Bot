@@ -186,10 +186,25 @@
       margin-bottom: 16px;
     }
 
+    .chart-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .chart-title {
       color: #F2F2F7;
       font-size: 16px;
       font-weight: 600;
+    }
+
+    .chart-hint {
+      color: rgba(142, 142, 147, 0.7);
+      font-size: 12px;
+    }
+
+    body.light .chart-hint {
+      color: rgba(142, 142, 147, 0.8);
     }
 
     .chart-period {
@@ -352,6 +367,13 @@
       font-weight: 600;
     }
 
+    .news-hint {
+      font-weight: 400;
+      font-size: 11px;
+      color: rgba(142, 142, 147, 0.6);
+      margin-left: 8px;
+    }
+
     a.market-news-item {
       display: block;
       padding: 12px 20px;
@@ -475,7 +497,9 @@
       .exchange-change { font-size: 13px; }
       .chart-card { padding: 16px; margin-bottom: 12px; }
       .chart-header { margin-bottom: 12px; }
+      .chart-header-left { gap: 8px; }
       .chart-title { font-size: 14px; }
+      .chart-hint { font-size: 11px; }
       .chart-container { height: 180px; }
       .stock-row { padding: 14px 16px; }
       .stock-info { gap: 12px; }
@@ -499,6 +523,7 @@
       .ai-badge { padding: 4px 10px; font-size: 10px; }
       .ai-comment { font-size: 13px; }
       .footer { margin-top: 24px; font-size: 11px; }
+      .news-hint { font-size: 10px; }
     }
   </style>
 </head>
@@ -557,8 +582,10 @@
 
   <div class="chart-card">
     <div class="chart-header">
-      <span class="chart-title" id="us-chart-title">{{ us_stocks[0].symbol if us_stocks else 'Chart' }}</span>
-      <span class="chart-period">5일</span>
+      <div class="chart-header-left">
+        <span class="chart-title" id="us-chart-title">{{ us_stocks[0].symbol if us_stocks else 'Chart' }}</span>
+        <span class="chart-hint">기준선: 첫날 종가 | 빨강 ▲ 파랑 ▼</span>
+      </div>
     </div>
     <div class="chart-container" id="us-chart"></div>
   </div>
@@ -587,7 +614,7 @@
 
   {% if us_market_news %}
   <div class="market-news">
-    <div class="market-news-title">📰 US Market News</div>
+    <div class="market-news-title">📰 US Market News <span class="news-hint">via Yahoo Finance</span></div>
     {% for news in us_market_news %}
     <a href="{{ news.link }}" target="_blank" class="market-news-item">
       <div class="market-news-headline">{{ news.title }}</div>
@@ -657,8 +684,10 @@
 
   <div class="chart-card">
     <div class="chart-header">
-      <span class="chart-title" id="kr-chart-title">{{ kr_stocks[0].symbol if kr_stocks else 'Chart' }}</span>
-      <span class="chart-period">5일</span>
+      <div class="chart-header-left">
+        <span class="chart-title" id="kr-chart-title">{{ kr_stocks[0].symbol if kr_stocks else 'Chart' }}</span>
+        <span class="chart-hint">기준선: 첫날 종가 | 빨강 ▲ 파랑 ▼</span>
+      </div>
     </div>
     <div class="chart-container" id="kr-chart"></div>
   </div>
@@ -687,7 +716,7 @@
 
   {% if kr_market_news %}
   <div class="market-news">
-    <div class="market-news-title">📰 KR Market News</div>
+    <div class="market-news-title">📰 KR Market News <span class="news-hint">대형주 최신 뉴스</span></div>
     {% for news in kr_market_news %}
     <a href="{{ news.link }}" target="_blank" class="market-news-item">
       <div class="market-news-headline">{{ news.title }}</div>
@@ -795,8 +824,16 @@
           fontSize: 11,
         },
         grid: {
-          vertLines: { visible: false },
-          horzLines: { visible: false },
+          vertLines: {
+            visible: true,
+            color: 'rgba(142, 142, 147, 0.2)',
+            style: LightweightCharts.LineStyle.Dashed,
+          },
+          horzLines: {
+            visible: true,
+            color: 'rgba(142, 142, 147, 0.2)',
+            style: LightweightCharts.LineStyle.Dashed,
+          },
         },
         crosshair: {
           mode: LightweightCharts.CrosshairMode.Normal,
@@ -866,6 +903,15 @@
 
       const chartData = data.map(d => ({ time: d.date, value: d.price }));
       series.setData(chartData);
+
+      // 기준선 추가
+      series.createPriceLine({
+        price: baseValue,
+        color: 'rgba(142, 142, 147, 0.5)',
+        lineWidth: 1,
+        lineStyle: LightweightCharts.LineStyle.Dashed,
+        axisLabelVisible: false,
+      });
 
       if (chartData.length > 0) {
         const lastPoint = chartData[chartData.length - 1];
