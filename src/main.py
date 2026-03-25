@@ -1,8 +1,3 @@
-"""
-Daily Stock Bot 메인 실행 모듈
-
-각 서비스를 오케스트레이션하여 주식 리포트를 생성합니다.
-"""
 import logging
 
 from src.config import (
@@ -41,15 +36,14 @@ logger = logging.getLogger(__name__)
 
 
 def main() -> None:
-    """메인 실행 함수"""
-    # 0. DB 초기화
+    # 1. DB 초기화
     try:
         init_db()
     except Exception as e:
         logger.error(f"DB 초기화 실패: {e}")
         return
 
-    # 1. 데이터 수집
+    # 2. 데이터 수집
     logger.info("데이터 수집 중...")
     us_results = fetch_us_stocks(US_TICKERS)
     kr_results = fetch_kr_stocks(KR_TICKERS)

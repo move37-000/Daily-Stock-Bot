@@ -1,8 +1,3 @@
-"""
-미국 주식 크롤러 모듈
-
-yfinance를 사용하여 미국 주식 데이터와 뉴스를 수집합니다.
-"""
 import logging
 from typing import Any
 

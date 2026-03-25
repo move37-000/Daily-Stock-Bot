@@ -1,8 +1,3 @@
-"""
-주식 데이터 저장소 모듈
-
-SQLite를 사용하여 주식 가격 데이터를 저장하고 조회합니다.
-"""
 import os
 import sqlite3
 from datetime import datetime
