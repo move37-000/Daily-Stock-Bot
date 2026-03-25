@@ -1,6 +1,19 @@
 import logging
+from typing import Any
 
-from src.config import US_TICKERS, KR_TICKERS, SLACK_WEBHOOK_URL, DISCORD_WEBHOOK_URL, REPORT_URL
+from src.config import (
+    US_TICKERS,
+    KR_TICKERS,
+    SLACK_WEBHOOK_URL,
+    DISCORD_WEBHOOK_URL,
+    REPORT_URL,
+    US_STOCK_NAMES,
+    US_STOCK_DOMAINS,
+    LOGO_API_TOKEN,
+    LOGO_API_URL,
+    TOSS_LOGO_URL,
+    NEWS_LIMIT,
+)
 from src.repository import init_db, save_stock_price
 from src.service import ReportService, send_slack_message, send_discord_message
 from src.crawler import (
@@ -21,18 +34,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-US_DOMAINS = {
-    'AAPL': 'apple.com',
-    'NVDA': 'nvidia.com',
-    'TSLA': 'tesla.com',
-    'META': 'meta.com',
-    'GOOGL': 'google.com',
-    'MSFT': 'microsoft.com',
-    'AMZN': 'amazon.com',
-}
 
-
-def save_us_stocks(results):
+def save_us_stocks(results: list[dict[str, Any]]) -> None:
     """미국 주식 DB 저장 (5일치)"""
     for stock in results:
         if 'history' in stock:
@@ -58,7 +61,7 @@ def save_us_stocks(results):
                     logger.debug(f"저장: {stock['symbol']} ({day['date']})")
 
 
-def save_kr_stocks(results):
+def save_kr_stocks(results: list[dict[str, Any]]) -> None:
     """한국 주식 DB 저장 (5일치)"""
     for stock in results:
         if 'history' in stock:
@@ -84,18 +87,22 @@ def save_kr_stocks(results):
                     logger.debug(f"저장: {stock['name']} ({day['date']})")
 
 
-def transform_us_data(us_results, us_index):
-    """미국 크롤러 데이터 → 템플릿 데이터로 변환"""
-    names = {
-        'AAPL': 'Apple Inc.',
-        'NVDA': 'NVIDIA Corp.',
-        'TSLA': 'Tesla Inc.',
-        'META': 'Meta Platforms',
-        'GOOGL': 'Alphabet Inc.',
-        'MSFT': 'Microsoft Corp.',
-        'AMZN': 'Amazon.com',
-    }
+def _get_us_logo_url(symbol: str) -> str:
+    """미국 주식 로고 URL 생성"""
+    domain = US_STOCK_DOMAINS.get(symbol, f"{symbol.lower()}.com")
+    return LOGO_API_URL.format(domain=domain, token=LOGO_API_TOKEN)
 
+
+def _get_kr_logo_url(code: str) -> str:
+    """한국 주식 로고 URL 생성"""
+    return TOSS_LOGO_URL.format(code=code)
+
+
+def transform_us_data(
+    us_results: list[dict[str, Any]],
+    us_index: dict[str, Any]
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """미국 크롤러 데이터 → 템플릿 데이터로 변환"""
     us_stocks = []
     for stock in us_results:
         history = []
@@ -105,13 +112,13 @@ def transform_us_data(us_results, us_index):
 
         us_stocks.append({
             "symbol": stock['symbol'],
-            "name": names.get(stock['symbol'], stock['symbol']),
+            "name": US_STOCK_NAMES.get(stock['symbol'], stock['symbol']),
             "price": f"{stock['close']:,.2f}",
             "change": stock['change'],
             "change_pct": f"{abs(stock['change_pct']):.2f}",
-            "logo": f"https://img.logo.dev/{US_DOMAINS.get(stock['symbol'], stock['symbol'].lower() + '.com')}?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&size=40&format=png",
+            "logo": _get_us_logo_url(stock['symbol']),
             "history": history,
-            "news": stock.get('news', [])[:3]
+            "news": stock.get('news', [])[:NEWS_LIMIT]
         })
 
     us_market = {
@@ -122,7 +129,10 @@ def transform_us_data(us_results, us_index):
     return us_market, us_stocks
 
 
-def transform_kr_data(kr_results, kr_index):
+def transform_kr_data(
+    kr_results: list[dict[str, Any]],
+    kr_index: dict[str, Any]
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """한국 크롤러 데이터 → 템플릿 데이터로 변환"""
     kr_stocks = []
     for stock in kr_results:
@@ -137,9 +147,9 @@ def transform_kr_data(kr_results, kr_index):
             "price": f"{int(stock['close']):,}",
             "change": stock['change'],
             "change_pct": f"{abs(stock['change_pct']):.2f}",
-            "logo": f"https://thumb.tossinvest.com/image/resized/40x0/https%3A%2F%2Fstatic.toss.im%2Fpng-icons%2Fsecurities%2Ficn-sec-fill-{stock['code']}.png",
+            "logo": _get_kr_logo_url(stock['code']),
             "history": history,
-            "news": stock.get('news', [])[:3]
+            "news": stock.get('news', [])[:NEWS_LIMIT]
         })
 
     kr_market = {

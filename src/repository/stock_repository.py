@@ -1,15 +1,25 @@
-import sqlite3
+"""
+주식 데이터 저장소 모듈
+
+SQLite를 사용하여 주식 가격 데이터를 저장하고 조회합니다.
+"""
 import os
+import sqlite3
 from datetime import datetime
+from typing import Any
+
+# 데이터베이스 경로
+_DB_DIR = "data"
+_DB_PATH = f"{_DB_DIR}/stock.db"
 
 
-def _get_connection():
+def _get_connection() -> sqlite3.Connection:
     """SQLite 연결 반환"""
-    os.makedirs("data", exist_ok=True)
-    return sqlite3.connect("data/stock.db")
+    os.makedirs(_DB_DIR, exist_ok=True)
+    return sqlite3.connect(_DB_PATH)
 
 
-def init_db():
+def init_db() -> None:
     """테이블 생성"""
     conn = _get_connection()
     cursor = conn.cursor()
@@ -32,14 +42,37 @@ def init_db():
     conn.close()
 
 
-def save_stock_price(symbol, name, market, close_price, change, change_pct, collected_at=None):
-    """주가 데이터 저장"""
+def save_stock_price(
+        symbol: str,
+        name: str,
+        market: str,
+        close_price: float,
+        change: float,
+        change_pct: float,
+        collected_at: str | None = None
+) -> bool:
+    """
+    주가 데이터 저장
+
+    Args:
+        symbol: 종목 심볼/코드
+        name: 종목명
+        market: 시장 (US/KR)
+        close_price: 종가
+        change: 전일 대비 변동
+        change_pct: 전일 대비 변동률
+        collected_at: 수집 일자 (기본값: 오늘)
+
+    Returns:
+        저장 성공 여부 (이미 존재하면 False)
+    """
     conn = _get_connection()
     cursor = conn.cursor()
 
     if collected_at is None:
         collected_at = datetime.now().strftime("%Y-%m-%d")
 
+    # 중복 체크
     cursor.execute("""
         SELECT id FROM stock_prices 
         WHERE symbol = ? AND collected_at = ?
@@ -59,8 +92,17 @@ def save_stock_price(symbol, name, market, close_price, change, change_pct, coll
     return True
 
 
-def get_stock_history(symbol, days=30):
-    """종목 히스토리 조회"""
+def get_stock_history(symbol: str, days: int = 30) -> list[dict[str, Any]]:
+    """
+    종목 히스토리 조회
+
+    Args:
+        symbol: 종목 심볼/코드
+        days: 조회 일수 (기본값: 30)
+
+    Returns:
+        날짜별 주가 데이터 리스트
+    """
     conn = _get_connection()
     cursor = conn.cursor()
 

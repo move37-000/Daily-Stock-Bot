@@ -1,12 +1,29 @@
+"""
+미국 주식 크롤러 모듈
+
+yfinance를 사용하여 미국 주식 데이터와 뉴스를 수집합니다.
+"""
 import logging
-from datetime import datetime
+from typing import Any
 
 import yfinance as yf
 
+from src.config import NEWS_LIMIT, US_INDEX_SYMBOLS
+from src.utils import format_us_news_time
+
 logger = logging.getLogger(__name__)
 
-def fetch_us_stocks(tickers):
-    """미국 주식 데이터 수집 (5일치)"""
+
+def fetch_us_stocks(tickers: list[str]) -> list[dict[str, Any]]:
+    """
+    미국 주식 데이터 수집 (5일치)
+
+    Args:
+        tickers: 종목 심볼 리스트 (예: ["AAPL", "MSFT"])
+
+    Returns:
+        종목별 주가 데이터 리스트
+    """
     results = []
 
     for symbol in tickers:
@@ -18,58 +35,9 @@ def fetch_us_stocks(tickers):
                 logger.warning(f"미국 주식 데이터 없음: {symbol}")
                 continue
 
-            # 전체 5일치 데이터 저장
-            daily_data = []
-            for date, row in history.iterrows():
-                daily_data.append({
-                    'date': date.strftime("%Y-%m-%d"),
-                    'close': row['Close'],
-                    'open': row['Open'],
-                    'high': row['High'],
-                    'low': row['Low'],
-                    'volume': row['Volume']
-                })
-
-            # 최신 데이터 (어제)
-            latest = history.iloc[-1]
-            prev = history.iloc[-2]
-            close = latest['Close']
-            change = close - prev['Close']
-            change_pct = (change / prev['Close']) * 100
-
-            # 뉴스 가져오기 (최신 3개)
-            news = []
-            try:
-                for item in ticker.news[:3]:
-                    content = item.get('content', {})
-                    pub_date = content.get('pubDate', '')
-
-                    # 시간 포맷 변환
-                    time_str = ''
-                    if pub_date:
-                        try:
-                            dt = datetime.strptime(pub_date, "%Y-%m-%dT%H:%M:%SZ")
-                            hour = dt.hour
-                            minute = dt.minute
-                            if hour < 12:
-                                ampm = '오전'
-                                display_hour = hour if hour != 0 else 12
-                            else:
-                                ampm = '오후'
-                                display_hour = hour - 12 if hour != 12 else 12
-                            time_str = f"{dt.month}월 {dt.day}일 {ampm} {display_hour}시 {minute}분"
-                        except ValueError as e:
-                            logger.debug(f"뉴스 시간 파싱 실패 ({symbol}): {e}")
-
-                    news.append({
-                        'title': content.get('title', ''),
-                        'link': content.get('clickThroughUrl', {}).get('url', '') or content.get('canonicalUrl',
-                                                                                                 {}).get('url', ''),
-                        'publisher': content.get('provider', {}).get('displayName', ''),
-                        'time': time_str
-                    })
-            except Exception as e:
-                logger.warning(f"뉴스 조회 실패 ({symbol}): {e}")
+            daily_data = _parse_history(history)
+            close, change, change_pct = _calculate_change(history)
+            news = _fetch_ticker_news(ticker, symbol)
 
             results.append({
                 'symbol': symbol,
@@ -77,7 +45,7 @@ def fetch_us_stocks(tickers):
                 'change': change,
                 'change_pct': change_pct,
                 'news': news,
-                'history': daily_data  # 5일치 히스토리 추가
+                'history': daily_data
             })
 
         except Exception as e:
@@ -87,38 +55,61 @@ def fetch_us_stocks(tickers):
     return results
 
 
-def fetch_us_market_news():
-    """미국 시장 전체 뉴스"""
+def fetch_us_market_news() -> list[dict[str, Any]]:
+    """미국 시장 전체 뉴스 (S&P 500 기준)"""
     try:
-        ticker = yf.Ticker("^GSPC")  # S&P 500
-        news = []
-        for item in ticker.news[:3]:
-            content = item.get('content', {})
-            pub_date = content.get('pubDate', '')
-
-            time_str = ''
-            if pub_date:
-                try:
-                    dt = datetime.strptime(pub_date, "%Y-%m-%dT%H:%M:%SZ")
-                    hour = dt.hour
-                    minute = dt.minute
-                    if hour < 12:
-                        ampm = '오전'
-                        display_hour = hour if hour != 0 else 12
-                    else:
-                        ampm = '오후'
-                        display_hour = hour - 12 if hour != 12 else 12
-                    time_str = f"{dt.month}월 {dt.day}일 {ampm} {display_hour}시 {minute}분"
-                except ValueError as e:
-                    logger.debug(f"시장 뉴스 시간 파싱 실패: {e}")
-
-            news.append({
-                'title': content.get('title', ''),
-                'publisher': content.get('provider', {}).get('displayName', ''),
-                'time': time_str,
-                'link': content.get('clickThroughUrl', {}).get('url', '') or content.get('canonicalUrl', {}).get('url', '')
-            })
-        return news
+        ticker = yf.Ticker(US_INDEX_SYMBOLS["sp500"])
+        return _fetch_ticker_news(ticker, "market")
     except Exception as e:
         logger.error(f"미국 시장 뉴스 조회 실패: {e}")
         return []
+
+
+def _parse_history(history) -> list[dict[str, Any]]:
+    """yfinance 히스토리 데이터 파싱"""
+    daily_data = []
+    for date, row in history.iterrows():
+        daily_data.append({
+            'date': date.strftime("%Y-%m-%d"),
+            'close': row['Close'],
+            'open': row['Open'],
+            'high': row['High'],
+            'low': row['Low'],
+            'volume': row['Volume']
+        })
+    return daily_data
+
+
+def _calculate_change(history) -> tuple[float, float, float]:
+    """전일 대비 변동 계산"""
+    latest = history.iloc[-1]
+    prev = history.iloc[-2]
+    close = latest['Close']
+    change = close - prev['Close']
+    change_pct = (change / prev['Close']) * 100
+    return close, change, change_pct
+
+
+def _fetch_ticker_news(ticker, symbol: str) -> list[dict[str, Any]]:
+    """종목/시장 뉴스 조회"""
+    news = []
+    try:
+        for item in ticker.news[:NEWS_LIMIT]:
+            content = item.get('content', {})
+            news.append({
+                'title': content.get('title', ''),
+                'link': _get_news_link(content),
+                'publisher': content.get('provider', {}).get('displayName', ''),
+                'time': format_us_news_time(content.get('pubDate', ''))
+            })
+    except Exception as e:
+        logger.warning(f"뉴스 조회 실패 ({symbol}): {e}")
+    return news
+
+
+def _get_news_link(content: dict) -> str:
+    """뉴스 링크 추출 (clickThroughUrl 우선, canonicalUrl 폴백)"""
+    return (
+            content.get('clickThroughUrl', {}).get('url', '') or
+            content.get('canonicalUrl', {}).get('url', '')
+    )
