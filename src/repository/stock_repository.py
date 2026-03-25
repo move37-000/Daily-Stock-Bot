@@ -2,10 +2,12 @@ import os
 import sqlite3
 from datetime import datetime
 from typing import Any
+from pathlib import Path
 
-# 데이터베이스 경로
-_DB_DIR = "data"
-_DB_PATH = f"{_DB_DIR}/stock.db"
+# 데이터베이스 경로 (프로젝트 루트 기준)
+_PROJECT_ROOT = Path(__file__).parent.parent.parent
+_DB_DIR = _PROJECT_ROOT / "data"
+_DB_PATH = _DB_DIR / "stock.db"
 
 
 def _get_connection() -> sqlite3.Connection:

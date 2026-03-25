@@ -8,3 +8,4 @@ matplotlib
 Jinja2
 numpy
 scipy
+google-genai

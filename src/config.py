@@ -86,6 +86,15 @@ KR_INDEX_SYMBOLS: dict[str, str] = {
 
 USD_KRW_SYMBOL = "USDKRW=X"
 
+# AI 설정
+GEMINI_MODELS = [
+    "gemini-3.1-flash-lite-preview",
+    "gemini-3-flash-preview",
+    "gemini-2.5-pro",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+]
+
 # =============================================================================
 # 외부 API 설정
 # =============================================================================

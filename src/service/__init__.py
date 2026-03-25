@@ -2,6 +2,7 @@ from src.service.report_service import generate_report
 from src.service.notification_service import send_slack_message, send_discord_message
 from src.service.stock_service import save_stocks
 from src.service.transformer import transform_us_data, transform_kr_data
+from src.service.ai_service import generate_market_comment
 
 __all__ = [
     "generate_report",
@@ -10,4 +11,5 @@ __all__ = [
     "save_stocks",
     "transform_us_data",
     "transform_kr_data",
+    "generate_market_comment"
 ]

@@ -179,6 +179,13 @@
       border-radius: 16px;
     }
 
+    .chart-description {
+      margin-bottom: 12px;
+      color: #8E8E93;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
     .chart-header {
       display: flex;
       justify-content: space-between;
@@ -496,6 +503,7 @@
       .exchange-value { font-size: 20px; }
       .exchange-change { font-size: 13px; }
       .chart-card { padding: 16px; margin-bottom: 12px; }
+      .chart-description { font-size: 11px; margin-bottom: 10px; }
       .chart-header { margin-bottom: 12px; }
       .chart-header-left { gap: 8px; }
       .chart-title { font-size: 14px; }
@@ -581,6 +589,7 @@
   </div>
 
   <div class="chart-card">
+    <div class="chart-description">미국장 마감(오전 6시) 직후 데이터 · 5일간 흐름으로 단기 추세 확인</div>
     <div class="chart-header">
       <div class="chart-header-left">
         <span class="chart-title" id="us-chart-title">{{ us_stocks[0].symbol if us_stocks else 'Chart' }}</span>
@@ -683,6 +692,7 @@
   </div>
 
   <div class="chart-card">
+    <div class="chart-description">어제 한국장 마감 데이터 · 오늘 개장 전 흐름 점검용</div>
     <div class="chart-header">
       <div class="chart-header-left">
         <span class="chart-title" id="kr-chart-title">{{ kr_stocks[0].symbol if kr_stocks else 'Chart' }}</span>
@@ -731,7 +741,7 @@
   <div class="ai-card">
     <div class="ai-header">
       <span class="ai-title">시황 분석</span>
-      <span class="ai-badge">✦ Claude</span>
+      <span class="ai-badge">✦ Gemini</span>
     </div>
     <div class="ai-comment">{{ ai_comment }}</div>
   </div>
