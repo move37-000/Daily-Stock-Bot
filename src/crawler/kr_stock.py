@@ -25,7 +25,7 @@ def fetch_kr_stocks(tickers: dict[str, str]) -> list[dict[str, Any]]:
     """
     today = datetime.now()
     end_date = today - timedelta(days=1)
-    start_date = today - timedelta(days=10)  # 넉넉하게 10일 전부터
+    start_date = today - timedelta(days=HISTORY_DAYS * 2)  # 여유있게 2배
 
     start_str = start_date.strftime("%Y%m%d")
     end_str = end_date.strftime("%Y%m%d")
