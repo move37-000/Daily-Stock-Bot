@@ -98,8 +98,9 @@ def fetch_kr_news(code: str, limit: int = NEWS_LIMIT) -> list[dict[str, Any]]:
 
 
 def fetch_kr_market_news() -> list[dict[str, Any]]:
-    """한국 시장 뉴스 (대형주에서 1개씩)"""
+    """한국 시장 뉴스 (대형주에서 1개씩, 중복 제거)"""
     news = []
+    seen_titles = set()  # 중복 체크용
 
     for code in KR_MARKET_NEWS_CODES:
         try:
@@ -110,6 +111,13 @@ def fetch_kr_market_news() -> list[dict[str, Any]]:
             if data and len(data) > 0:
                 article = data[0].get('items', [{}])[0]
                 if article:
+                    title = article.get('title', '')
+
+                    # 중복 체크
+                    if title in seen_titles:
+                        continue
+                    seen_titles.add(title)
+
                     parsed = _parse_kr_news_article(article)
                     parsed['publisher'] = article.get('officeName', '네이버 금융')
                     news.append(parsed)
