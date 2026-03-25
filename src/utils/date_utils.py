@@ -1,8 +1,3 @@
-"""
-날짜/시간 유틸리티 모듈
-
-뉴스 시간 포맷 변환 등 날짜 관련 공통 함수를 제공합니다.
-"""
 import logging
 from datetime import datetime
 

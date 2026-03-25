@@ -1,50 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-Daily Stock Bot 설정 모듈
-
-환경변수, 티커 목록, 상수 등 모든 설정값을 중앙 관리합니다.
-"""
 import os
 from dotenv import load_dotenv
 
@@ -77,23 +30,19 @@ US_TICKERS: list[str] = ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA"]
 # 미국 종목 회사명 매핑
 US_STOCK_NAMES: dict[str, str] = {
     "AAPL": "Apple Inc.",
-    "NVDA": "NVIDIA Corp.",
-    "TSLA": "Tesla Inc.",
-    "META": "Meta Platforms",
-    "GOOGL": "Alphabet Inc.",
     "MSFT": "Microsoft Corp.",
-    "AMZN": "Amazon.com",
+    "GOOGL": "Alphabet Inc.",
+    "TSLA": "Tesla Inc.",
+    "NVDA": "NVIDIA Corp.",
 }
 
 # 미국 종목 도메인 매핑 (로고 URL용)
 US_STOCK_DOMAINS: dict[str, str] = {
     "AAPL": "apple.com",
-    "NVDA": "nvidia.com",
-    "TSLA": "tesla.com",
-    "META": "meta.com",
-    "GOOGL": "google.com",
     "MSFT": "microsoft.com",
-    "AMZN": "amazon.com",
+    "GOOGL": "google.com",
+    "TSLA": "tesla.com",
+    "NVDA": "nvidia.com",
 }
 
 # =============================================================================
