@@ -179,6 +179,13 @@
       border-radius: 16px;
     }
 
+    .chart-description {
+      margin-bottom: 12px;
+      color: #8E8E93;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
     .chart-header {
       display: flex;
       justify-content: space-between;
@@ -496,6 +503,7 @@
       .exchange-value { font-size: 20px; }
       .exchange-change { font-size: 13px; }
       .chart-card { padding: 16px; margin-bottom: 12px; }
+      .chart-description { font-size: 11px; margin-bottom: 10px; }
       .chart-header { margin-bottom: 12px; }
       .chart-header-left { gap: 8px; }
       .chart-title { font-size: 14px; }
@@ -577,6 +585,7 @@
   </div>
 
   <div class="chart-card">
+    <div class="chart-description">미국장 마감(오전 6시) 직후 데이터 · 5일간 흐름으로 단기 추세 확인</div>
     <div class="chart-header">
       <div class="chart-header-left">
         <span class="chart-title" id="us-chart-title">NVDA</span>
@@ -671,13 +680,13 @@
     <div class="exchange-content">
       <div class="exchange-left">
         <div class="exchange-label">💱 USD/KRW</div>
-        <div class="exchange-value">1,498.76</div>
+        <div class="exchange-value">1,497.63</div>
         <div class="exchange-change change-up">
-          ▲ 0.90%
+          ▲ 0.83%
         </div>
       </div>
       <div class="exchange-right">
-        <div class="sparkline" id="spark-usdkrw" data-history='[{"date": "2026-03-19", "price": 1505.25}, {"date": "2026-03-20", "price": 1489.8399658203125}, {"date": "2026-03-23", "price": 1504.2099609375}, {"date": "2026-03-24", "price": 1485.3599853515625}, {"date": "2026-03-25", "price": 1498.760009765625}]' data-change="13.4000244140625"></div>
+        <div class="sparkline" id="spark-usdkrw" data-history='[{"date": "2026-03-19", "price": 1505.25}, {"date": "2026-03-20", "price": 1489.8399658203125}, {"date": "2026-03-23", "price": 1504.2099609375}, {"date": "2026-03-24", "price": 1485.3599853515625}, {"date": "2026-03-25", "price": 1497.6300048828125}]' data-change="12.27001953125"></div>
       </div>
     </div>
   </div>
@@ -690,15 +699,15 @@
       <div class="market-card-content">
         <div class="market-card-left">
           <div class="market-label">KOSPI</div>
-          <div class="market-value">5,644.68</div>
+          <div class="market-value">5,642.21</div>
           
           <div class="market-change change-up">
-            ▲ 1.63%
+            ▲ 1.59%
           </div>
           
         </div>
         <div class="market-card-right">
-          <div class="sparkline" id="spark-kospi" data-history='[{"date": "2026-03-19", "price": 5763.22021484375}, {"date": "2026-03-20", "price": 5781.2001953125}, {"date": "2026-03-23", "price": 5405.75}, {"date": "2026-03-24", "price": 5553.919921875}, {"date": "2026-03-25", "price": 5644.68017578125}]' data-change="90.76025390625"></div>
+          <div class="sparkline" id="spark-kospi" data-history='[{"date": "2026-03-19", "price": 5763.22021484375}, {"date": "2026-03-20", "price": 5781.2001953125}, {"date": "2026-03-23", "price": 5405.75}, {"date": "2026-03-24", "price": 5553.919921875}, {"date": "2026-03-25", "price": 5642.2099609375}]' data-change="88.2900390625"></div>
         </div>
       </div>
     </div>
@@ -706,21 +715,22 @@
       <div class="market-card-content">
         <div class="market-card-left">
           <div class="market-label">KOSDAQ</div>
-          <div class="market-value">1,154.40</div>
+          <div class="market-value">1,159.55</div>
           
           <div class="market-change change-up">
-            ▲ 2.94%
+            ▲ 3.40%
           </div>
           
         </div>
         <div class="market-card-right">
-          <div class="sparkline" id="spark-kosdaq" data-history='[{"date": "2026-03-19", "price": 1143.47998046875}, {"date": "2026-03-20", "price": 1161.52001953125}, {"date": "2026-03-23", "price": 1096.8900146484375}, {"date": "2026-03-24", "price": 1121.43994140625}, {"date": "2026-03-25", "price": 1154.4000244140625}]' data-change="32.9600830078125"></div>
+          <div class="sparkline" id="spark-kosdaq" data-history='[{"date": "2026-03-19", "price": 1143.47998046875}, {"date": "2026-03-20", "price": 1161.52001953125}, {"date": "2026-03-23", "price": 1096.8900146484375}, {"date": "2026-03-24", "price": 1121.43994140625}, {"date": "2026-03-25", "price": 1159.550048828125}]' data-change="38.110107421875"></div>
         </div>
       </div>
     </div>
   </div>
 
   <div class="chart-card">
+    <div class="chart-description">어제 한국장 마감 데이터 · 오늘 개장 전 흐름 점검용</div>
     <div class="chart-header">
       <div class="chart-header-left">
         <span class="chart-title" id="kr-chart-title">TIGER AI반도체핵심공정</span>
@@ -756,29 +766,38 @@
   <div class="market-news">
     <div class="market-news-title">📰 KR Market News <span class="news-hint">대형주 최신 뉴스</span></div>
     
-    <a href="https://n.news.naver.com/mnews/article/055/0001343261" target="_blank" class="market-news-item">
-      <div class="market-news-headline">SK하이닉스 곽노정 &amp;quot;순현금 100조 확보 목표…ADR 상장, 주주가치 제고...</div>
-      <div class="market-news-meta">SBS · 3월 25일 오후 2시 54분</div>
+    <a href="https://n.news.naver.com/mnews/article/079/0004128989" target="_blank" class="market-news-item">
+      <div class="market-news-headline">휴전 기대 혼재 속 코스피 5600선 회복…환율 1499.7원</div>
+      <div class="market-news-meta">노컷뉴스 · 3월 25일 오후 4시 11분</div>
     </a>
     
-    <a href="https://n.news.naver.com/mnews/article/015/0005266763" target="_blank" class="market-news-item">
-      <div class="market-news-headline">SK하이닉스, 美 ADR 상장 추진...순현금 100조 목표 [HK영상]</div>
-      <div class="market-news-meta">한국경제 · 3월 25일 오후 2시 55분</div>
+    <a href="https://n.news.naver.com/mnews/article/079/0004128989" target="_blank" class="market-news-item">
+      <div class="market-news-headline">휴전 기대 혼재 속 코스피 5600선 회복…환율 1499.7원</div>
+      <div class="market-news-meta">노컷뉴스 · 3월 25일 오후 4시 11분</div>
     </a>
     
-    <a href="https://n.news.naver.com/mnews/article/421/0008848511" target="_blank" class="market-news-item">
-      <div class="market-news-headline">&#39;기관 2조 순매수&#39; 코스피 5650선 지지…중동 변수에 상승폭 제한 [장...</div>
-      <div class="market-news-meta">뉴스1 · 3월 25일 오후 2시 53분</div>
+    <a href="https://n.news.naver.com/mnews/article/003/0013845714" target="_blank" class="market-news-item">
+      <div class="market-news-headline">코스피, 美·이란 휴전 기대에 1%대 상승 마감…장중 변동성 확대(종합...</div>
+      <div class="market-news-meta">뉴시스 · 3월 25일 오후 4시 9분</div>
     </a>
     
   </div>
   
 
   
+  <div class="section-label">🤖 AI Analysis</div>
+  <div class="ai-card">
+    <div class="ai-header">
+      <span class="ai-title">시황 분석</span>
+      <span class="ai-badge">✦ Gemini</span>
+    </div>
+    <div class="ai-comment">어제 한국 증시는 코스피와 코스닥 모두 큰 폭으로 상승하며 투자 심리가 완전히 살아난 하루였어. 이런 분위기는 밤사이 미국 시장까지 이어져 나스닥이 강세를 보이며 기술주 중심의 상승 흐름을 주도했지. 특히 AI 산업에 대한 기대감이 식지 않으면서 글로벌 투자자들의 자금이 여전히 기술주로 쏠리고 있는 모습이야. 덕분에 오늘 우리 시장도 긍정적인 출발이 예상되는데, 미국 기술주들의 견조한 흐름이 국내 반도체 관련주들에 힘을 실어줄 것으로 보여. 다만 최근 가파른 상승에 따른 피로감이 있을 수 있으니, 장중 차익 실현 매물이 나오는지 체크하는 신중함도 필요할 것 같아. 환율이나 외국인의 수급 변화를 주시하면서 시장의 방향성을 따라가는 대응이 중요해 보여. 이 정보는 투자 판단을 돕기 위한 참고 자료일 뿐이며, 모든 투자의 최종 책임은 본인에게 있다는 점 잊지 마. 오늘도 성공적인 투자 전략 세우길 바랄게!</div>
+  </div>
+  
 
   <div class="footer">
     Daily Stock Bot · GitHub Actions<br>
-    데이터 기준: 2026-03-25 05:57 KST<br>
+    데이터 기준: 2026-03-25 07:12 KST<br>
     본 리포트는 투자 권유가 아닙니다
   </div>
 
