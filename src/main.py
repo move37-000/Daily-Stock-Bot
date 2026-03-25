@@ -18,7 +18,7 @@ from src.crawler import (
     fetch_kr_market_news,
 )
 from src.service import (
-    ReportService,
+    generate_report,
     send_slack_message,
     send_discord_message,
     save_stocks,
@@ -83,8 +83,7 @@ def _generate_report(
     """HTML 리포트 생성"""
     logger.info("리포트 생성 중...")
     try:
-        service = ReportService()
-        filename = service.generate_report(
+        filename = generate_report(
             us_market=us_market,
             kr_market=kr_market,
             us_stocks=us_stocks,

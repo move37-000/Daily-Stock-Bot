@@ -1,8 +1,3 @@
-"""
-알림 서비스 모듈
-
-Slack, Discord 등 외부 서비스로 리포트 알림을 전송합니다.
-"""
 import logging
 from dataclasses import dataclass
 from datetime import datetime

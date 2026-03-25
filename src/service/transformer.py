@@ -1,8 +1,3 @@
-"""
-데이터 변환 모듈
-
-크롤러 데이터를 템플릿/알림용 데이터로 변환합니다.
-"""
 from typing import Any
 
 from src.config import (
