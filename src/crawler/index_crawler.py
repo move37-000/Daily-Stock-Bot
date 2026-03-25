@@ -1,8 +1,3 @@
-"""
-지수 및 환율 크롤러 모듈
-
-yfinance를 사용하여 미국/한국 시장 지수와 환율 데이터를 수집합니다.
-"""
 import logging
 from typing import Any
 

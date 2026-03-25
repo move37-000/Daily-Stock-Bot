@@ -1,8 +1,3 @@
-"""
-한국 주식 크롤러 모듈
-
-pykrx와 네이버 금융 API를 사용하여 한국 주식 데이터와 뉴스를 수집합니다.
-"""
 import logging
 from datetime import datetime, timedelta
 from typing import Any
@@ -15,7 +10,6 @@ from src.utils import format_kr_news_time
 
 logger = logging.getLogger(__name__)
 
-# HTTP 요청 헤더
 _HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 
