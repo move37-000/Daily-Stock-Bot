@@ -66,18 +66,20 @@ def main() -> None:
 
     # 6. 데이터 변환
     logger.info("데이터 변환 중...")
+    print(us_index)
     us_market, us_stocks = transform_us_data(us_results, us_index)
     kr_market, kr_stocks = transform_kr_data(kr_results, kr_index)
+    print(us_market)
 
     # 7. AI 분석 생성
     ai_comment = _generate_ai_comment(us_market, kr_market, us_stocks, kr_stocks)
 
     # 8. HTML 리포트 생성
-    _generate_report(us_market, kr_market, us_stocks, kr_stocks, 
-                        us_market_news, kr_market_news, usd_krw, ai_comment)
+    # _generate_report(us_market, kr_market, us_stocks, kr_stocks,
+                        # us_market_news, kr_market_news, usd_krw, ai_comment)
 
     # 9. 알림 전송
-    _send_notifications(us_results, kr_results, us_market, kr_market, usd_krw)
+    # _send_notifications(us_results, kr_results, us_market, kr_market, usd_krw)
 
 
 def _generate_ai_comment(us_market, kr_market, us_stocks, kr_stocks) -> str | None:

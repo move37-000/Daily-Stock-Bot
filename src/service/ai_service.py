@@ -1,5 +1,7 @@
 import os
 import logging
+from ftplib import print_line
+
 from google import genai
 
 from src.config import GEMINI_MODELS
@@ -23,19 +25,19 @@ def generate_market_comment(
     client = genai.Client(api_key=api_key)
     prompt = _build_prompt(us_market, kr_market, us_stocks, kr_stocks)
 
-    for model in GEMINI_MODELS:
-        try:
-            logger.info(f"AI 모델 시도: {model}")
-            response = client.models.generate_content(
-                model=model,
-                contents=prompt
-            )
-            logger.info(f"AI 분석 성공: {model}")
-            return response.text.strip()
-
-        except Exception as e:
-            logger.warning(f"{model} 실패: {e}")
-            continue
+    # for model in GEMINI_MODELS:
+    #     try:
+    #         logger.info(f"AI 모델 시도: {model}")
+    #         response = client.models.generate_content(
+    #             model=model,
+    #             contents=prompt
+    #         )
+    #         logger.info(f"AI 분석 성공: {model}")
+    #         return response.text.strip()
+    #
+    #     except Exception as e:
+    #         logger.warning(f"{model} 실패: {e}")
+    #         continue
 
     logger.error("모든 AI 모델 실패")
     return None
@@ -67,6 +69,10 @@ def _build_prompt(
         f"{s.get('symbol', '')} {s.get('change_pct', 0)}%"
         for s in kr_stocks[:3]
     ])
+
+    print(f"sp500 : {sp500}")
+    print(f"nasdaq : {nasdaq}")
+    print(f"us_summary : {us_summary}")
 
     prompt = f"""당신은 개인 투자자를 위한 세계 제일의 유능하고 전문적인 주식 애널리스트 입니다.
 

@@ -66,12 +66,15 @@ def _transform_us_stock(stock: dict[str, Any]) -> dict[str, Any]:
     """미국 개별 종목 데이터 변환"""
     history = _sort_and_format_history(stock.get('history', []))
 
+    change_val = stock['change_pct']
+    change_pct_str = f"{change_val:+.2f}"
+
     return {
         "symbol": stock['symbol'],
         "name": US_STOCK_NAMES.get(stock['symbol'], stock['symbol']),
         "price": f"{stock['close']:,.2f}",
         "change": stock['change'],
-        "change_pct": f"{abs(stock['change_pct']):.2f}",
+        "change_pct": change_pct_str,
         "logo": _get_us_logo_url(stock['symbol']),
         "history": history,
         "news": stock.get('news', [])[:NEWS_LIMIT]
@@ -82,12 +85,15 @@ def _transform_kr_stock(stock: dict[str, Any]) -> dict[str, Any]:
     """한국 개별 종목 데이터 변환"""
     history = _sort_and_format_history(stock.get('history', []))
 
+    change_val = stock['change_pct']
+    change_pct_str = f"{change_val:+.2f}"
+
     return {
         "symbol": stock['name'],
         "name": stock['code'],
         "price": f"{int(stock['close']):,}",
         "change": stock['change'],
-        "change_pct": f"{abs(stock['change_pct']):.2f}",
+        "change_pct": change_pct_str,
         "logo": _get_kr_logo_url(stock['code']),
         "history": history,
         "news": stock.get('news', [])[:NEWS_LIMIT]

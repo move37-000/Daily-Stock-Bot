@@ -80,8 +80,12 @@ def _calculate_daily_change(history: list[dict], index: int) -> tuple[float, flo
         return 0, 0
 
     prev_close = history[index - 1]['close']
+    print(prev_close)
     current_close = history[index]['close']
+    print(current_close)
     change = current_close - prev_close
+    print(change)
     change_pct = (change / prev_close) * 100
+    print(change_pct)
 
     return change, change_pct
