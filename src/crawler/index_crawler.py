@@ -83,6 +83,8 @@ def _fetch_single_index(symbol: str, name: str) -> dict[str, Any]:
         close, change, change_pct = _calculate_change(history)
         daily_data = _parse_history(history)
 
+        print(f"change_pct: {change_pct}")
+
         return {
             "price": f"{close:,.2f}",
             "change": change,
