@@ -50,9 +50,6 @@ def _fetch_multiple_indices(
     for name, symbol in symbols.items():
         try:
             data = _fetch_single_index(symbol, f"{market_name} {name}")
-
-            print(f"data: {data}")
-
             result[name] = data
         except Exception as e:
             logger.error(f"{market_name} 지수 조회 실패 ({name}): {e}")

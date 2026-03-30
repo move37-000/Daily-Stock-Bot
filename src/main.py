@@ -73,11 +73,11 @@ def main() -> None:
     ai_comment = _generate_ai_comment(us_market, kr_market, us_stocks, kr_stocks)
 
     # 8. HTML 리포트 생성
-    # _generate_report(us_market, kr_market, us_stocks, kr_stocks,
-                        # us_market_news, kr_market_news, usd_krw, ai_comment)
+    _generate_report(us_market, kr_market, us_stocks, kr_stocks,
+                        us_market_news, kr_market_news, usd_krw, ai_comment)
 
     # 9. 알림 전송
-    # _send_notifications(us_results, kr_results, us_market, kr_market, usd_krw)
+    _send_notifications(us_results, kr_results, us_market, kr_market, usd_krw)
 
 
 def _generate_ai_comment(us_market, kr_market, us_stocks, kr_stocks) -> str | None:
