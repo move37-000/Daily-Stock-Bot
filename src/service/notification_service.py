@@ -134,9 +134,9 @@ def _format_index_line(
 ) -> str:
     """지수 한 줄 포맷팅"""
     emoji = "🔴" if index_data.get('change', 0) < 0 else "🟢"
-    sign = "+" if index_data.get('change', 0) >= 0 else "-"
+    sign = "+" if index_data.get('change', 0) >= 0 else ""
     price = index_data.get('price', '-')
-    pct = index_data.get('change_pct', '-')
+    pct = index_data.get('change_pct')
 
     if use_backticks:
         return f"{emoji} {name} `{price}` ({sign}{pct}%)"
@@ -164,9 +164,9 @@ def _build_slack_message(
 
     # 환율 정보
     if usd_krw and usd_krw.get('price') != '-':
-        emoji = "🔴" if usd_krw.get('change', 0) < 0 else "🟢"
-        sign = "+" if usd_krw.get('change', 0) >= 0 else "-"
-        lines.append(f"💵 *USD/KRW*  {usd_krw.get('price', '-')} ({sign}{usd_krw.get('change_pct', '-')}%)")
+        # emoji = "🔴" if usd_krw.get('change', 0) < 0 else "🟢"
+        # sign = usd_krw.get('change', 0)
+        lines.append(f"💵 *USD/KRW*  {usd_krw.get('price')} ({usd_krw.get('change_pct')}%)")
         lines.extend(["", ""])
 
     # 요약
