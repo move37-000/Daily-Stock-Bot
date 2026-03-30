@@ -74,6 +74,10 @@ def _build_prompt(
     print(f"nasdaq : {nasdaq}")
     print(f"us_summary : {us_summary}")
 
+    print(f"sp500 : {kospi}")
+    print(f"nasdaq : {kosdaq}")
+    print(f"us_summary : {kr_summary}")
+
     prompt = f"""당신은 개인 투자자를 위한 세계 제일의 유능하고 전문적인 주식 애널리스트 입니다.
 
     아래 데이터를 바탕으로 오늘 한국장 개장 전 시황 브리핑을 작성해주세요.
