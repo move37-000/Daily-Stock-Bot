@@ -66,10 +66,8 @@ def main() -> None:
 
     # 6. 데이터 변환
     logger.info("데이터 변환 중...")
-    print(f"us_index? : {us_index}")
     us_market, us_stocks = transform_us_data(us_results, us_index)
     kr_market, kr_stocks = transform_kr_data(kr_results, kr_index)
-    print(f"us_market? : {us_market}")
 
     # 7. AI 분석 생성
     ai_comment = _generate_ai_comment(us_market, kr_market, us_stocks, kr_stocks)
