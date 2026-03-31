@@ -46,6 +46,7 @@ jobs:
           mkdir -p docs
           latest_report=$(ls -t reports/*.html | head -1)
           cp "$latest_report" docs/index.html
+          echo "" >> docs/index.html
 
       - name: GitHub Pages 배포
         uses: peaceiris/actions-gh-pages@v3
