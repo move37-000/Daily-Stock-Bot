@@ -25,19 +25,19 @@ def generate_market_comment(
     client = genai.Client(api_key=api_key)
     prompt = _build_prompt(us_market, kr_market, us_stocks, kr_stocks)
 
-    # for model in GEMINI_MODELS:
-    #     try:
-    #         logger.info(f"AI 모델 시도: {model}")
-    #         response = client.models.generate_content(
-    #             model=model,
-    #             contents=prompt
-    #         )
-    #         logger.info(f"AI 분석 성공: {model}")
-    #         return response.text.strip()
-    #
-    #     except Exception as e:
-    #         logger.warning(f"{model} 실패: {e}")
-    #         continue
+    for model in GEMINI_MODELS:
+        try:
+            logger.info(f"AI 모델 시도: {model}")
+            response = client.models.generate_content(
+                model=model,
+                contents=prompt
+            )
+            logger.info(f"AI 분석 성공: {model}")
+            return response.text.strip()
+
+        except Exception as e:
+            logger.warning(f"{model} 실패: {e}")
+            continue
 
     logger.error("모든 AI 모델 실패")
     return None
