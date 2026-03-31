@@ -14,7 +14,7 @@ DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 # =============================================================================
 GITHUB_USERNAME = "move37-000"
 REPO_NAME = "Daily-Stock-Bot"
-REPORT_URL = f"https://{GITHUB_USERNAME}.github.io/{REPO_NAME}/"
+REPORT_URL = f"https://{GITHUB_USERNAME}.github.io/{REPO_NAME}/?v1=v"
 
 # =============================================================================
 # 데이터 수집 설정
