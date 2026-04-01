@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Stock Report - 2026-04-01</title>
+  <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    @import url('https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+      background: #1C1C1E;
+      color: #F2F2F7;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-date {
+      margin-bottom: 6px;
+      color: #8E8E93;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+
+    .header-title {
+      color: #F2F2F7;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .theme-toggle {
+      padding: 8px 12px;
+      background: #3A3A3C;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover {
+      background: #48484A;
+    }
+
+    .section-label {
+      margin: 32px 0 12px;
+      color: #8E8E93;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .market-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .market-card {
+      padding: 20px;
+      background: #2C2C2E;
+      border: 0.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+    }
+
+    .market-card-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .market-card-left {
+      flex-shrink: 0;
+    }
+
+    .market-card-right {
+      flex: 1;
+      height: 50px;
+    }
+
+    .sparkline {
+      width: 100%;
+      height: 100%;
+    }
+
+    .market-label {
+      margin-bottom: 8px;
+      color: #8E8E93;
+      font-size: 13px;
+    }
+
+    .market-value {
+      margin-bottom: 6px;
+      color: #F2F2F7;
+      font-size: 26px;
+      font-weight: 600;
+    }
+
+    .market-change {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .change-up { color: #FF453A; }
+    .change-down { color: #0A84FF; }
+    .change-neutral { color: #8E8E93; }
+
+    .exchange-card {
+      padding: 20px;
+      margin-bottom: 28px;
+      background: #2C2C2E;
+      border: 0.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+    }
+
+    .exchange-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .exchange-left {
+      flex-shrink: 0;
+    }
+
+    .exchange-right {
+      flex: 1;
+      height: 50px;
+    }
+
+    .exchange-label {
+      margin-bottom: 8px;
+      color: #8E8E93;
+      font-size: 13px;
+    }
+
+    .exchange-value {
+      margin-bottom: 6px;
+      color: #F2F2F7;
+      font-size: 26px;
+      font-weight: 600;
+    }
+
+    .exchange-change {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .chart-card {
+      padding: 20px;
+      margin-bottom: 16px;
+      background: #2C2C2E;
+      border: 0.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+    }
+
+    .chart-description {
+      margin-bottom: 12px;
+      color: #8E8E93;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .chart-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chart-title {
+      color: #F2F2F7;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .chart-hint {
+      color: rgba(142, 142, 147, 0.7);
+      font-size: 12px;
+    }
+
+    body.light .chart-hint {
+      color: rgba(142, 142, 147, 0.8);
+    }
+
+    .chart-period {
+      color: #8E8E93;
+      font-size: 13px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 220px;
+    }
+
+    .stock-list {
+      padding: 6px 0;
+      margin-bottom: 16px;
+      background: #2C2C2E;
+      border: 0.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+    }
+
+    .stock-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .stock-row:not(:first-child):not(.stock-news-inline + .stock-row) {
+      border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stock-row:hover { background-color: #3A3A3C; }
+    .stock-row.active { background-color: #3A3A3C; }
+
+    .stock-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stock-logo-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 42px;
+      height: 42px;
+      min-width: 42px;
+      min-height: 42px;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    .stock-logo {
+      width: 42px;
+      height: 42px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .stock-fallback {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 42px;
+      height: 42px;
+      background: #3A3A3C;
+      border-radius: 10px;
+      color: #F2F2F7;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .stock-name {
+      color: #F2F2F7;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .stock-fullname {
+      margin-top: 3px;
+      color: #8E8E93;
+      font-size: 12px;
+    }
+
+    .stock-right {
+      text-align: right;
+    }
+
+    .stock-price {
+      color: #F2F2F7;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .stock-change {
+      margin-top: 3px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .stock-news-inline {
+      max-height: 0;
+      opacity: 0;
+      background: #252527;
+      border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+
+    .stock-news-inline.show {
+      max-height: 500px;
+      opacity: 1;
+    }
+
+    .stock-news-inline-inner {
+      padding: 0 20px;
+    }
+
+    .stock-news-item {
+      display: block;
+      padding: 10px 20px;
+      margin: 0 -20px;
+      color: inherit;
+      text-decoration: none;
+      border-top: 0.5px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      transition: background-color 0.15s ease;
+    }
+
+    .stock-news-item:first-child { border-top: none; }
+    .stock-news-item:hover { background-color: rgba(255, 255, 255, 0.05); }
+    .stock-news-item:hover .stock-news-title { text-decoration: underline; }
+
+    .stock-news-title {
+      color: #F2F2F7;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .stock-news-time {
+      margin-top: 4px;
+      color: #8E8E93;
+      font-size: 11px;
+    }
+
+    .market-news {
+      padding: 16px 20px 0;
+      margin-bottom: 28px;
+      background: #2C2C2E;
+      border: 0.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+    }
+
+    .market-news-title {
+      margin-bottom: 12px;
+      color: #8E8E93;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .news-hint {
+      font-weight: 400;
+      font-size: 11px;
+      color: rgba(142, 142, 147, 0.6);
+      margin-left: 8px;
+    }
+
+    a.market-news-item {
+      display: block;
+      padding: 12px 20px;
+      margin: 0 -20px;
+      color: inherit;
+      text-decoration: none;
+      border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      transition: background-color 0.15s ease;
+    }
+
+    a.market-news-item:first-of-type { border-top: none; }
+    a.market-news-item:hover { background-color: rgba(255, 255, 255, 0.05); }
+    a.market-news-item:hover .market-news-headline { text-decoration: underline; }
+
+    .market-news-headline {
+      margin-bottom: 4px;
+      color: #F2F2F7;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .market-news-meta {
+      color: #8E8E93;
+      font-size: 12px;
+    }
+
+    .ai-card {
+      padding: 20px;
+      margin-bottom: 28px;
+      background: #2C2C2E;
+      border: 0.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+    }
+
+    .ai-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .ai-title {
+      color: #F2F2F7;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .ai-badge {
+      padding: 5px 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+
+    .ai-comment {
+      color: #AEAEB2;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .footer {
+      margin-top: 32px;
+      color: #636366;
+      font-size: 12px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    /* 라이트모드 */
+    body.light { background: #F2F2F7; color: #1C1C1E; }
+    body.light .header-title { color: #1C1C1E; }
+    body.light .market-card,
+    body.light .chart-card,
+    body.light .stock-list,
+    body.light .market-news,
+    body.light .exchange-card,
+    body.light .ai-card {
+      background: #FFFFFF;
+      border-color: rgba(0, 0, 0, 0.06);
+    }
+    body.light .market-value,
+    body.light .chart-title,
+    body.light .stock-name,
+    body.light .stock-price,
+    body.light .stock-news-title,
+    body.light .market-news-headline,
+    body.light .exchange-value,
+    body.light .ai-title { color: #1C1C1E; }
+    body.light .stock-row:hover,
+    body.light .stock-row.active { background-color: #F2F2F7; }
+    body.light .stock-row:not(:first-child):not(.stock-news-inline + .stock-row) { border-color: rgba(0, 0, 0, 0.06); }
+    body.light .stock-news-inline { background: #F9F9F9; border-color: rgba(0, 0, 0, 0.06); }
+    body.light .stock-news-item { border-color: rgba(0, 0, 0, 0.06); }
+    body.light .stock-news-item:hover { background-color: rgba(0, 0, 0, 0.03); }
+    body.light a.market-news-item { border-color: rgba(0, 0, 0, 0.06); }
+    body.light a.market-news-item:hover { background-color: rgba(0, 0, 0, 0.03); }
+    body.light .theme-toggle { background: #E5E5EA; }
+    body.light .theme-toggle:hover { background: #D1D1D6; }
+    body.light .stock-fallback { background: #E5E5EA; color: #1C1C1E; }
+    body.light .ai-comment { color: #3C3C43; }
+    body.light .footer { color: #8E8E93; }
+
+    /* 모바일 반응형 */
+    @media (max-width: 600px) {
+      body { padding: 20px 16px 48px; }
+      .header { margin-bottom: 24px; }
+      .header-title { font-size: 22px; }
+      .section-label { font-size: 11px; margin: 24px 0 10px; }
+      .market-grid { gap: 10px; margin-bottom: 12px; }
+      .market-card { padding: 16px; }
+      .market-card-right { height: 40px; }
+      .market-label { font-size: 12px; }
+      .market-value { font-size: 20px; }
+      .market-change { font-size: 13px; }
+      .exchange-card { padding: 16px; }
+      .exchange-right { height: 40px; }
+      .exchange-value { font-size: 20px; }
+      .exchange-change { font-size: 13px; }
+      .chart-card { padding: 16px; margin-bottom: 12px; }
+      .chart-description { font-size: 11px; margin-bottom: 10px; }
+      .chart-header { margin-bottom: 12px; }
+      .chart-header-left { gap: 8px; }
+      .chart-title { font-size: 14px; }
+      .chart-hint { font-size: 11px; }
+      .chart-container { height: 180px; }
+      .stock-row { padding: 14px 16px; }
+      .stock-info { gap: 12px; }
+      .stock-logo-wrapper, .stock-logo, .stock-fallback { width: 38px; height: 38px; min-width: 38px; min-height: 38px; }
+      .stock-fallback { font-size: 14px; }
+      .stock-name { font-size: 14px; }
+      .stock-fullname { font-size: 11px; }
+      .stock-price { font-size: 14px; }
+      .stock-change { font-size: 12px; }
+      .stock-news-inline-inner { padding: 0 16px; }
+      .stock-news-item { padding: 10px 16px; margin: 0 -16px; }
+      .stock-news-title { font-size: 12px; }
+      .stock-news-time { font-size: 10px; }
+      .market-news { padding: 14px 16px 0; }
+      .market-news-title { font-size: 12px; }
+      .market-news-headline { font-size: 13px; }
+      .market-news-meta { font-size: 11px; }
+      a.market-news-item { padding: 12px 16px; margin: 0 -16px; }
+      .ai-card { padding: 16px; }
+      .ai-title { font-size: 13px; }
+      .ai-badge { padding: 4px 10px; font-size: 10px; }
+      .ai-comment { font-size: 13px; }
+      .footer { margin-top: 24px; font-size: 11px; }
+      .news-hint { font-size: 10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="header-top">
+      <div class="header-date">2026-04-01</div>
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-icon">☀️</span>
+      </button>
+    </div>
+    <div class="header-title">Daily Stock Report</div>
+  </div>
+
+  <div class="section-label">🇺🇸 US Market</div>
+
+  <div class="market-grid">
+    <div class="market-card">
+      <div class="market-card-content">
+        <div class="market-card-left">
+          <div class="market-label">S&P 500</div>
+          <div class="market-value">6,575.32</div>
+          
+          <div class="market-change change-up">
+            ▲ +0.72%
+          </div>
+          
+        </div>
+        <div class="market-card-right">
+          <div class="sparkline" id="spark-sp500" data-history='[{"date": "2026-03-26", "price": 6477.16015625}, {"date": "2026-03-27", "price": 6368.85009765625}, {"date": "2026-03-30", "price": 6343.72021484375}, {"date": "2026-03-31", "price": 6528.52001953125}, {"date": "2026-04-01", "price": 6575.31982421875}]' data-change="46.7998046875"></div>
+        </div>
+      </div>
+    </div>
+    <div class="market-card">
+      <div class="market-card-content">
+        <div class="market-card-left">
+          <div class="market-label">NASDAQ</div>
+          <div class="market-value">21,840.95</div>
+          
+          <div class="market-change change-up">
+            ▲ +1.16%
+          </div>
+          
+        </div>
+        <div class="market-card-right">
+          <div class="sparkline" id="spark-nasdaq" data-history='[{"date": "2026-03-26", "price": 21408.080078125}, {"date": "2026-03-27", "price": 20948.359375}, {"date": "2026-03-30", "price": 20794.640625}, {"date": "2026-03-31", "price": 21590.630859375}, {"date": "2026-04-01", "price": 21840.947265625}]' data-change="250.31640625"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-description">미국장 마감(오전 6시) 직후 데이터 · 5일간 흐름으로 단기 추세 확인</div>
+    <div class="chart-header">
+      <div class="chart-header-left">
+        <span class="chart-title" id="us-chart-title">NVDA</span>
+        <span class="chart-hint">기준선: 첫날 종가 | 빨강 ▲ 파랑 ▼</span>
+      </div>
+    </div>
+    <div class="chart-container" id="us-chart"></div>
+  </div>
+
+  <div class="stock-list">
+    
+    <div class="stock-row active" data-market="us" data-symbol="NVDA" data-history='[{"date": "2026-03-26", "price": 171.24000549316406}, {"date": "2026-03-27", "price": 167.52000427246094}, {"date": "2026-03-30", "price": 165.1699981689453}, {"date": "2026-03-31", "price": 174.39999389648438}, {"date": "2026-04-01", "price": 175.75}]' data-change="1.350006103515625" data-news='[{"link": "https://finance.yahoo.com/sectors/technology/article/tech-stocks-today-anthropic-does-damage-control-after-claude-leak-iran-threatens-big-tech-operations-144220238.html", "publisher": "Yahoo Finance", "time": "3\uc6d4 13\uc77c \uc624\ud6c4 2\uc2dc 42\ubd84", "title": "Tech stocks today: Anthropic does damage control after Claude leak, Iran threatens Big Tech operations"}, {"link": "https://finance.yahoo.com/news/morning-brief-stocks-roar-back-plus-our-giant-action-packed-q1-roundup-100033568.html", "publisher": "Yahoo Finance", "time": "4\uc6d4 1\uc77c \uc624\uc804 10\uc2dc 0\ubd84", "title": "Morning Brief: Stocks roar back, plus our giant, action-packed Q1 roundup"}, {"link": "https://finance.yahoo.com/news/nvidia-investors-just-had-a-surprising-first-quarter-204546936.html", "publisher": "Yahoo Finance", "time": "3\uc6d4 31\uc77c \uc624\ud6c4 8\uc2dc 45\ubd84", "title": "Nvidia investors just had a surprising first quarter"}]'>
+      <div class="stock-info">
+        <div class="stock-logo-wrapper">
+          <img class="stock-logo" src="https://img.logo.dev/nvidia.com?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&amp;size=40&amp;format=png" alt="NVDA" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>N</div>'">
+        </div>
+        <div>
+          <div class="stock-name">NVDA</div>
+          <div class="stock-fullname">NVIDIA Corporation</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$175.75</div>
+        <div class="stock-change change-up">
+          ▲ +0.77%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row " data-market="us" data-symbol="QQQ" data-history='[{"date": "2026-03-26", "price": 573.7899780273438}, {"date": "2026-03-27", "price": 562.5800170898438}, {"date": "2026-03-30", "price": 558.280029296875}, {"date": "2026-03-31", "price": 577.1799926757812}, {"date": "2026-04-01", "price": 584.3099975585938}]' data-change="7.1300048828125" data-news='[]'>
+      <div class="stock-info">
+        <div class="stock-logo-wrapper">
+          <img class="stock-logo" src="https://img.logo.dev/invesco.com?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&amp;size=40&amp;format=png" alt="QQQ" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>Q</div>'">
+        </div>
+        <div>
+          <div class="stock-name">QQQ</div>
+          <div class="stock-fullname">Invesco QQQ Trust</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$584.31</div>
+        <div class="stock-change change-up">
+          ▲ +1.24%
+        </div>
+      </div>
+    </div>
+    
+    <div class="stock-row " data-market="us" data-symbol="SCHD" data-history='[{"date": "2026-03-26", "price": 30.6200008392334}, {"date": "2026-03-27", "price": 30.440000534057617}, {"date": "2026-03-30", "price": 30.479999542236328}, {"date": "2026-03-31", "price": 30.68000030517578}, {"date": "2026-04-01", "price": 30.510000228881836}]' data-change="-0.1700000762939453" data-news='[{"link": "https://finance.yahoo.com/markets/stocks/articles/move-over-energy-stocks-uber-185000410.html", "publisher": "Motley Fool", "time": "4\uc6d4 1\uc77c \uc624\ud6c4 6\uc2dc 50\ubd84", "title": "Move Over Energy Stocks. This Uber-Popular Dividend ETF Has a New Favored Income Source."}, {"link": "https://finance.yahoo.com/markets/stocks/articles/consider-increasing-exposure-dividend-etfs-165500224.html", "publisher": "Zacks", "time": "4\uc6d4 1\uc77c \uc624\ud6c4 4\uc2dc 55\ubd84", "title": "Should You Consider Increasing Exposure to Dividend ETFs Now?"}, {"link": "https://finance.yahoo.com/markets/commodities/articles/zacks-investment-ideas-feature-highlights-092900190.html", "publisher": "Zacks", "time": "3\uc6d4 31\uc77c \uc624\uc804 9\uc2dc 29\ubd84", "title": "Zacks Investment Ideas feature highlights LIT, SCHD and PDBC"}]'>
+      <div class="stock-info">
+        <div class="stock-logo-wrapper">
+          <img class="stock-logo" src="https://img.logo.dev/schwab.com?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&amp;size=40&amp;format=png" alt="SCHD" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>S</div>'">
+        </div>
+        <div>
+          <div class="stock-name">SCHD</div>
+          <div class="stock-fullname">Schwab US Dividend Equity ETF</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">$30.51</div>
+        <div class="stock-change change-down">
+          ▼ -0.55%
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  
+  <div class="market-news">
+    <div class="market-news-title">📰 US Market News <span class="news-hint">via Yahoo Finance</span></div>
+    
+    <a href="https://finance.yahoo.com/news/live/stock-market-today-dow-sp-500-nasdaq-extend-rally-for-2nd-day-on-hopes-of-iran-war-deescalation-200008381.html" target="_blank" class="market-news-item">
+      <div class="market-news-headline">Stock market today: Dow, S&amp;P 500, Nasdaq extend rally for 2nd day on hopes of Iran war deescalation</div>
+      <div class="market-news-meta">Yahoo Finance · 4월 1일 오후 8시 0분</div>
+    </a>
+    
+    <a href="https://finance.yahoo.com/news/morning-brief-stocks-roar-back-plus-our-giant-action-packed-q1-roundup-100033568.html" target="_blank" class="market-news-item">
+      <div class="market-news-headline">Morning Brief: Stocks roar back, plus our giant, action-packed Q1 roundup</div>
+      <div class="market-news-meta">Yahoo Finance · 4월 1일 오전 10시 0분</div>
+    </a>
+    
+    <a href="https://finance.yahoo.com/markets/stocks/articles/2-reasons-watch-tjx-1-222326661.html" target="_blank" class="market-news-item">
+      <div class="market-news-headline">2 Reasons to Watch TJX and 1 to Stay Cautious</div>
+      <div class="market-news-meta">StockStory · 4월 1일 오후 10시 23분</div>
+    </a>
+    
+  </div>
+  
+
+  
+  <div class="exchange-card">
+    <div class="exchange-content">
+      <div class="exchange-left">
+        <div class="exchange-label">💱 USD/KRW</div>
+        <div class="exchange-value">1,513.28</div>
+        <div class="exchange-change change-down">
+          ▼ -0.19%
+        </div>
+      </div>
+      <div class="exchange-right">
+        <div class="sparkline" id="spark-usdkrw" data-history='[{"date": "2026-03-26", "price": 1500.969970703125}, {"date": "2026-03-27", "price": 1508.3599853515625}, {"date": "2026-03-30", "price": 1507.02001953125}, {"date": "2026-03-31", "price": 1516.1300048828125}, {"date": "2026-04-01", "price": 1513.280029296875}]' data-change="-2.8499755859375"></div>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="section-label">🇰🇷 KR Market</div>
+
+  <div class="market-grid">
+    <div class="market-card">
+      <div class="market-card-content">
+        <div class="market-card-left">
+          <div class="market-label">KOSPI</div>
+          <div class="market-value">5,052.46</div>
+          
+          <div class="market-change change-down">
+            ▼ -4.26%
+          </div>
+          
+        </div>
+        <div class="market-card-right">
+          <div class="sparkline" id="spark-kospi" data-history='[{"date": "2026-03-26", "price": 5460.4599609375}, {"date": "2026-03-27", "price": 5438.8701171875}, {"date": "2026-03-30", "price": 5277.2998046875}, {"date": "2026-03-31", "price": 5052.4599609375}]' data-change="-224.83984375"></div>
+        </div>
+      </div>
+    </div>
+    <div class="market-card">
+      <div class="market-card-content">
+        <div class="market-card-left">
+          <div class="market-label">KOSDAQ</div>
+          <div class="market-value">1,052.39</div>
+          
+          <div class="market-change change-down">
+            ▼ -4.94%
+          </div>
+          
+        </div>
+        <div class="market-card-right">
+          <div class="sparkline" id="spark-kosdaq" data-history='[{"date": "2026-03-26", "price": 1136.6400146484375}, {"date": "2026-03-27", "price": 1141.510009765625}, {"date": "2026-03-30", "price": 1107.050048828125}, {"date": "2026-03-31", "price": 1052.3900146484375}]' data-change="-54.6600341796875"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-description">어제 한국장 마감 데이터 · 오늘 개장 전 흐름 점검용</div>
+    <div class="chart-header">
+      <div class="chart-header-left">
+        <span class="chart-title" id="kr-chart-title">TIGER AI반도체핵심공정</span>
+        <span class="chart-hint">기준선: 첫날 종가 | 빨강 ▲ 파랑 ▼</span>
+      </div>
+    </div>
+    <div class="chart-container" id="kr-chart"></div>
+  </div>
+
+  <div class="stock-list">
+    
+    <div class="stock-row active" data-market="kr" data-symbol="TIGER AI반도체핵심공정" data-history='[{"date": "2026-03-25", "price": 19940.0}, {"date": "2026-03-26", "price": 18715.0}, {"date": "2026-03-27", "price": 18605.0}, {"date": "2026-03-30", "price": 17535.0}, {"date": "2026-03-31", "price": 16780.0}]' data-change="-755.0" data-news='[{"link": "https://n.news.naver.com/mnews/article/024/0000104360", "time": "3\uc6d4 26\uc77c \uc624\ud6c4 2\uc2dc 20\ubd84", "title": "\u2018\uc0bc\uc804\ub2c9\uc2a4\u2019 \ub9d0\uace0 \uc5ec\uae30\u2026\ubc18\ub3c4\uccb4 \uc18c\ubd80\uc7a5 ETF \uc218\uc775\ub960 \ucd5c\uace0"}, {"link": "https://n.news.naver.com/mnews/article/014/0005491607", "time": "3\uc6d4 15\uc77c \uc624\ud6c4 6\uc2dc 7\ubd84", "title": "\uae4a\uc5b4\uc9c0\ub294 \u2018\uc911\ub3d9 \ub9ac\uc2a4\ud06c\u2019\u2026 \uc6d0\uc720\u00b7\uc6d0\uc804 \ub4f1 \uc5d0\ub108\uc9c0 \uc885\ubaa9 \uc0c1\uc704\uad8c[ETF \uc2a4..."}, {"link": "https://n.news.naver.com/mnews/article/015/0005262133", "time": "3\uc6d4 13\uc77c \uc624\ud6c4 5\uc2dc 22\ubd84", "title": "\ubc18\ub3c4\uccb4 \uc18c\ubd80\uc7a5\u682a, \ub099\uc218\ud6a8\uacfc \uae30\ub300\uc5d0 \uc6c3\uc5c8\ub2e4"}]'>
+      <div class="stock-info">
+        <div class="stock-logo-wrapper">
+          <img class="stock-logo" src="https://thumb.tossinvest.com/image/resized/40x0/https%3A%2F%2Fstatic.toss.im%2Fpng-icons%2Fsecurities%2Ficn-sec-fill-471760.png" alt="TIGER AI반도체핵심공정" onerror="this.parentElement.outerHTML='<div class=\'stock-fallback\'>T</div>'">
+        </div>
+        <div>
+          <div class="stock-name">TIGER AI반도체핵심공정</div>
+          <div class="stock-fullname">471760</div>
+        </div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">16,780원</div>
+        <div class="stock-change change-down">
+          ▼ -4.31%
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  
+  <div class="market-news">
+    <div class="market-news-title">📰 KR Market News <span class="news-hint">대형주 최신 뉴스</span></div>
+    
+    <a href="https://n.news.naver.com/mnews/article/374/0000501813" target="_blank" class="market-news-item">
+      <div class="market-news-headline">[마켓 프리뷰] &amp;quot;드디어 끝나나&amp;quot; 코스피 5400선 회복…환율 29원↓</div>
+      <div class="market-news-meta">SBS Biz · 4월 2일 오전 7시 29분</div>
+    </a>
+    
+  </div>
+  
+
+  
+  <div class="section-label">🤖 AI Analysis</div>
+  <div class="ai-card">
+    <div class="ai-header">
+      <span class="ai-title">시황 분석</span>
+      <span class="ai-badge">✦ Gemini</span>
+    </div>
+    <div class="ai-comment">어제 우리 시장은 양대 지수가 큰 폭으로 하락하며 투자자들의 불안감이 극에 달했던 하루였어. 특히 AI 반도체 관련 종목들이 과도하게 밀리면서 시장 전반의 투심이 크게 위축된 모습이었지. 하지만 다행히 간밤 미국 시장은 기술주를 중심으로 강한 반등에 성공하며 숨통을 틔워줬어. 나스닥이 다시 힘을 내면서 글로벌 시장의 AI 성장성에 대한 신뢰가 여전히 견고하다는 걸 증명했거든. 글로벌 지정학적 불확실성이 상존하지만, 뉴욕증시의 견조한 흐름은 오늘 우리 시장에도 긍정적인 신호로 작용할 거야. 다만 급락 이후라 변동성이 여전히 클 수 있으니, 무리한 추격 매수보다는 시장의 안정을 확인하는 신중한 접근이 필요해 보여. 오늘 우리 증시는 기술적 반등을 시도하겠지만, 전날의 낙폭을 얼마나 만회하느냐가 관건이 될 것 같아. 본 브리핑은 정보 제공을 위한 참고 자료일 뿐, 최종적인 투자의 책임은 본인에게 있다는 점 꼭 기억해 줘.</div>
+  </div>
+  
+
+  <div class="footer">
+    Daily Stock Bot · GitHub Actions<br>
+    데이터 기준: 2026-04-01 22:32 KST<br>
+    본 리포트는 투자 권유가 아닙니다
+  </div>
+
+  <script>
+    let usChart = null;
+    let krChart = null;
+    let usChartSeries = null;
+    let krChartSeries = null;
+
+    function getChartHeight() {
+      return window.innerWidth <= 600 ? 180 : 220;
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const icon = document.querySelector('.theme-icon');
+      if (body.classList.contains('light')) {
+        body.classList.remove('light');
+        icon.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.add('light');
+        icon.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    function renderInlineNews(stockRow, news) {
+      const market = stockRow.dataset.market;
+
+      document.querySelectorAll('.stock-news-inline').forEach(el => {
+        const parentMarket = el.previousElementSibling?.dataset?.market;
+        if (parentMarket === market) {
+          el.classList.remove('show');
+          setTimeout(() => el.remove(), 300);
+        }
+      });
+
+      if (!news || news.length === 0) return;
+
+      const newsEl = document.createElement('div');
+      newsEl.className = 'stock-news-inline';
+
+      let html = '<div class="stock-news-inline-inner">';
+      news.forEach(item => {
+        const title = item.title || '';
+        const time = item.time || '';
+        const link = item.link || '#';
+        html += `
+          <a href="${link}" target="_blank" class="stock-news-item" style="display:block; text-decoration:none; color:inherit;">
+            <div class="stock-news-title">${title}</div>
+            ${time ? `<div class="stock-news-time">${time}</div>` : ''}
+          </a>
+        `;
+      });
+      html += '</div>';
+      newsEl.innerHTML = html;
+
+      stockRow.insertAdjacentElement('afterend', newsEl);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          newsEl.classList.add('show');
+        });
+      });
+    }
+
+    function createChart(containerId, data) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      const baseValue = data[0].price;
+      const chartHeight = getChartHeight();
+
+      const chart = LightweightCharts.createChart(container, {
+        width: container.clientWidth,
+        height: chartHeight,
+        layout: {
+          background: { type: 'solid', color: 'transparent' },
+          textColor: '#8E8E93',
+          fontFamily: 'Pretendard, sans-serif',
+          fontSize: 11,
+        },
+        grid: {
+          vertLines: {
+            visible: true,
+            color: 'rgba(142, 142, 147, 0.2)',
+            style: LightweightCharts.LineStyle.Dashed,
+          },
+          horzLines: {
+            visible: true,
+            color: 'rgba(142, 142, 147, 0.2)',
+            style: LightweightCharts.LineStyle.Dashed,
+          },
+        },
+        crosshair: {
+          mode: LightweightCharts.CrosshairMode.Normal,
+          vertLine: {
+            color: 'rgba(142, 142, 147, 0.5)',
+            width: 1,
+            style: LightweightCharts.LineStyle.Dashed,
+            labelVisible: false,
+          },
+          horzLine: {
+            visible: true,
+            color: 'rgba(142, 142, 147, 0.5)',
+            width: 1,
+            style: LightweightCharts.LineStyle.Dashed,
+            labelVisible: true,
+            labelBackgroundColor: '#3A3A3C',
+          },
+        },
+        rightPriceScale: {
+          visible: true,
+          borderVisible: false,
+          autoScale: true,
+          scaleMargins: { top: 0.01, bottom: 0.01 },
+        },
+        timeScale: {
+          visible: true,
+          borderVisible: false,
+          fixLeftEdge: true,
+          fixRightEdge: true,
+          barSpacing: 60,
+          minBarSpacing: 30,
+          tickMarkFormatter: (time) => {
+            if (typeof time === 'string' && time.length >= 10) {
+              return time.substring(5);
+            }
+            return time;
+          },
+        },
+        handleScroll: false,
+        handleScale: false,
+      });
+
+      const series = chart.addBaselineSeries({
+        baseValue: { type: 'price', price: baseValue },
+        topLineColor: '#FF453A',
+        topFillColor1: 'rgba(255, 69, 58, 0.28)',
+        topFillColor2: 'rgba(255, 69, 58, 0.05)',
+        bottomLineColor: '#0A84FF',
+        bottomFillColor1: 'rgba(10, 132, 255, 0.05)',
+        bottomFillColor2: 'rgba(10, 132, 255, 0.28)',
+        lineWidth: 2,
+        crosshairMarkerVisible: false,
+        lastValueVisible: false,
+        priceLineVisible: false,
+        priceScaleId: 'right',
+        priceFormat: {
+          type: 'custom',
+          formatter: (price) => {
+            if (price >= 10000) {
+              const val = price / 10000;
+              return val % 1 === 0 ? val + '만' : val.toFixed(1) + '만';
+            }
+            return price % 1 === 0 ? price : price.toFixed(2);
+          },
+        },
+      });
+
+      const chartData = data.map(d => ({ time: d.date, value: d.price }));
+      series.setData(chartData);
+
+      // 기준선 추가
+      series.createPriceLine({
+        price: baseValue,
+        color: 'rgba(142, 142, 147, 0.5)',
+        lineWidth: 1,
+        lineStyle: LightweightCharts.LineStyle.Dashed,
+        axisLabelVisible: false,
+      });
+
+      if (chartData.length > 0) {
+        const lastPoint = chartData[chartData.length - 1];
+        const markerColor = lastPoint.value >= baseValue ? '#FF453A' : '#0A84FF';
+        series.setMarkers([{
+          time: lastPoint.time,
+          position: 'inBar',
+          color: markerColor,
+          shape: 'circle',
+          size: 0.5,
+        }]);
+      }
+
+      chart.timeScale().fitContent();
+      window.addEventListener('resize', () => {
+        chart.applyOptions({ width: container.clientWidth, height: getChartHeight() });
+      });
+
+      return { chart, series, data };
+    }
+
+    function updateChart(chartObj, seriesObj, data) {
+      const baseValue = data[0].price;
+      seriesObj.applyOptions({ baseValue: { type: 'price', price: baseValue } });
+
+      const chartData = data.map(d => ({ time: d.date, value: d.price }));
+      seriesObj.setData(chartData);
+
+      if (chartData.length > 0) {
+        const lastPoint = chartData[chartData.length - 1];
+        const markerColor = lastPoint.value >= baseValue ? '#FF453A' : '#0A84FF';
+        seriesObj.setMarkers([{
+          time: lastPoint.time,
+          position: 'inBar',
+          color: markerColor,
+          shape: 'circle',
+          size: 0.5,
+        }]);
+      }
+
+      chartObj.timeScale().fitContent();
+    }
+
+    function createSparkline(el) {
+      const history = JSON.parse(el.dataset.history || '[]');
+      const change = parseFloat(el.dataset.change) || 0;
+
+      if (history.length < 2) return;
+
+      const chart = LightweightCharts.createChart(el, {
+        width: el.clientWidth,
+        height: el.clientHeight,
+        layout: {
+          background: { type: 'solid', color: 'transparent' },
+          textColor: 'transparent',
+        },
+        grid: {
+          vertLines: { visible: false },
+          horzLines: { visible: false },
+        },
+        rightPriceScale: { visible: false },
+        timeScale: { visible: false },
+        handleScroll: false,
+        handleScale: false,
+        crosshair: { mode: LightweightCharts.CrosshairMode.Hidden },
+      });
+
+      const isUp = change >= 0;
+      const lineColor = isUp ? '#FF453A' : '#0A84FF';
+      const topColor = isUp ? 'rgba(255, 69, 58, 0.4)' : 'rgba(10, 132, 255, 0.4)';
+      const bottomColor = isUp ? 'rgba(255, 69, 58, 0.0)' : 'rgba(10, 132, 255, 0.0)';
+
+      const series = chart.addAreaSeries({
+        lineColor: lineColor,
+        lineWidth: 2,
+        topColor: topColor,
+        bottomColor: bottomColor,
+        priceLineVisible: false,
+        lastValueVisible: false,
+        crosshairMarkerVisible: false,
+      });
+
+      const data = history.map(d => ({ time: d.date, value: d.price }));
+      series.setData(data);
+      chart.timeScale().fitContent();
+
+      return chart;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'light') {
+        document.body.classList.add('light');
+        document.querySelector('.theme-icon').textContent = '🌙';
+      }
+
+      document.querySelectorAll('.sparkline').forEach(el => {
+        createSparkline(el);
+      });
+
+      const firstUs = document.querySelector('.stock-row[data-market="us"]');
+      const firstKr = document.querySelector('.stock-row[data-market="kr"]');
+
+      if (firstUs) {
+        const history = JSON.parse(firstUs.dataset.history);
+        const news = JSON.parse(firstUs.dataset.news || '[]');
+        if (history.length > 0) {
+          const result = createChart('us-chart', history);
+          usChart = result.chart;
+          usChartSeries = result.series;
+        }
+        setTimeout(() => renderInlineNews(firstUs, news), 100);
+      }
+
+      if (firstKr) {
+        const history = JSON.parse(firstKr.dataset.history);
+        const news = JSON.parse(firstKr.dataset.news || '[]');
+        if (history.length > 0) {
+          const result = createChart('kr-chart', history);
+          krChart = result.chart;
+          krChartSeries = result.series;
+        }
+        setTimeout(() => renderInlineNews(firstKr, news), 100);
+      }
+
+      document.querySelectorAll('.stock-row').forEach(row => {
+        row.addEventListener('click', function() {
+          const market = this.dataset.market;
+          const symbol = this.dataset.symbol;
+          const history = JSON.parse(this.dataset.history);
+          const news = JSON.parse(this.dataset.news || '[]');
+
+          if (history.length === 0) return;
+
+          if (market === 'us' && usChart && usChartSeries) {
+            document.getElementById('us-chart-title').textContent = symbol;
+            updateChart(usChart, usChartSeries, history);
+          } else if (market === 'kr' && krChart && krChartSeries) {
+            document.getElementById('kr-chart-title').textContent = symbol;
+            updateChart(krChart, krChartSeries, history);
+          }
+
+          document.querySelectorAll(`.stock-row[data-market="${market}"]`).forEach(r => r.classList.remove('active'));
+          this.classList.add('active');
+
+          renderInlineNews(this, news);
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>
