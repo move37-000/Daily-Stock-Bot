@@ -88,6 +88,9 @@ def _fetch_single_index(symbol: str, name: str) -> dict[str, Any]:
         print(f"yesterday: {yesterday}")
         print(f"last_date: {last_date}")
 
+        last_price = ticker.fast_info['last_price']
+        print(f"last_price : {last_price}")
+
 
         if len(history) < 2:
             logger.warning(f"{name} 데이터 부족: {len(history)}일치")
