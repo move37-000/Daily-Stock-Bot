@@ -85,7 +85,8 @@ def _fetch_single_index(symbol: str, name: str) -> dict[str, Any]:
         # 마지막 데이터의 날짜 확인
         last_date = history.index[-1].date()
 
-        print(#)
+        print(f"yesterday: {yesterday}")
+        print(f"last_date: {last_date}")
 
 
         if len(history) < 2:
