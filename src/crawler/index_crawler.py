@@ -73,6 +73,21 @@ def _fetch_single_index(symbol: str, name: str) -> dict[str, Any]:
         ticker = yf.Ticker(symbol)
         history = ticker.history(period=f"{HISTORY_DAYS}d")
 
+        print(f"ticker: {ticker}")
+        # print(f"history: {history}")
+
+        # [보정 로직 추가]
+        # 한국 지수의 경우 어제 데이터가 history에 없을 때, fast_info에서 가져와 채워줌
+        import datetime
+        today = datetime.date.today()
+        yesterday = today - datetime.timedelta(days=1)
+
+        # 마지막 데이터의 날짜 확인
+        last_date = history.index[-1].date()
+
+        print(#)
+
+
         if len(history) < 2:
             logger.warning(f"{name} 데이터 부족: {len(history)}일치")
             return _DEFAULT_INDEX_DATA.copy()
