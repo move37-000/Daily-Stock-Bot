@@ -81,15 +81,12 @@ def _fetch_single_index(symbol: str, name: str) -> dict[str, Any]:
         import datetime
         today = datetime.date.today()
         yesterday = today - datetime.timedelta(days=1)
-
-        # 마지막 데이터의 날짜 확인
         last_date = history.index[-1].date()
 
-        print(f"yesterday: {yesterday}")
-        print(f"last_date: {last_date}")
-
-        last_price = ticker.fast_info['last_price']
-        print(f"last_price : {last_price}")
+        if last_date < yesterday:
+            last_price = ticker.fast_info['last_price']
+            history.loc[pd.Timestamp(yesterday)] = [last_price] * len(history.columns)
+            logger.info(f"{name}: 부족한 최신 데이터를 fast_info 에서 보정.")
 
 
         if len(history) < 2:
