@@ -46,8 +46,8 @@ def main() -> None:
 
     # 2. 데이터 수집
     logger.info("데이터 수집 중...")
-    # us_results = fetch_us_stocks(US_TICKERS)
-    # kr_results = fetch_kr_stocks(KR_TICKERS)
+    us_results = fetch_us_stocks(US_TICKERS)
+    kr_results = fetch_kr_stocks(KR_TICKERS)
 
     # 3. 지수 데이터 수집
     # logger.info("지수 데이터 수집 중...")
@@ -55,39 +55,29 @@ def main() -> None:
     kr_index = fetch_kr_index()
     usd_krw = fetch_usd_krw()
 
-    print(f"us_index: {us_index}")
-    print(f"kr_index: {kr_index}")
-    print(f"usd_krw: {usd_krw}")
-
-
     # 4. 시장 뉴스 수집
-    # logger.info("시장 뉴스 수집 중...")
-    # us_market_news = fetch_us_market_news()
-    # kr_market_news = fetch_kr_market_news()
+    logger.info("시장 뉴스 수집 중...")
+    us_market_news = fetch_us_market_news()
+    kr_market_news = fetch_kr_market_news()
 
     # 5. DB 저장
-    # ogger.info("DB 저장 중...")
-    # save_stocks(us_results, kr_results)
+    logger.info("DB 저장 중...")
+    save_stocks(us_results, kr_results)
 
     # 6. 데이터 변환
-    # logger.info("데이터 변환 중...")
-    # us_market, us_stocks = transform_us_data(us_results, us_index)
-    # kr_market, kr_stocks = transform_kr_data(kr_results, kr_index)
-
-    # print(f"us_market: {us_market}")
-    # print(f"us_stocks: {us_stocks}")
-    # print(f"kr_market: {kr_market}")
-    # print(f"kr_stocks: {kr_stocks}")
+    logger.info("데이터 변환 중...")
+    us_market, us_stocks = transform_us_data(us_results, us_index)
+    kr_market, kr_stocks = transform_kr_data(kr_results, kr_index)
 
     # 7. AI 분석 생성
-    # ai_comment = _generate_ai_comment(us_market, kr_market, us_stocks, kr_stocks)
+    ai_comment = _generate_ai_comment(us_market, kr_market, us_stocks, kr_stocks)
 
     # 8. HTML 리포트 생성
-    #_generate_report(us_market, kr_market, us_stocks, kr_stocks,
-    #                    us_market_news, kr_market_news, usd_krw, ai_comment)
+    _generate_report(us_market, kr_market, us_stocks, kr_stocks,
+                        us_market_news, kr_market_news, usd_krw, ai_comment)
 
     # 9. 알림 전송
-    #_send_notifications(us_results, kr_results, us_market, kr_market, usd_krw)
+    _send_notifications(us_results, kr_results, us_market, kr_market, usd_krw)
 
 
 def _generate_ai_comment(us_market, kr_market, us_stocks, kr_stocks) -> str | None:
