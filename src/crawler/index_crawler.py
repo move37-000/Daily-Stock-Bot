@@ -1,6 +1,7 @@
 import logging
 from typing import Any
 
+import datetime
 import pandas as pd
 import yfinance as yf
 
@@ -79,16 +80,18 @@ def _fetch_single_index(symbol: str, name: str) -> dict[str, Any]:
 
         # [보정 로직 추가]
         # 한국 지수의 경우 어제 데이터가 history에 없을 때, fast_info에서 가져와 채워줌
-        import datetime
         today = datetime.date.today()
         yesterday = today - datetime.timedelta(days=1)
         last_date = history.index[-1].date()
+
+        print(f"이전 history : {history}")
 
         if last_date < yesterday:
             last_price = ticker.fast_info['last_price']
             history.loc[pd.Timestamp(yesterday)] = [last_price] * len(history.columns)
             logger.info(f"{name}: 부족한 최신 데이터를 fast_info 에서 보정.")
 
+        print(f"이후 history : {history}")
 
         if len(history) < 2:
             logger.warning(f"{name} 데이터 부족: {len(history)}일치")
