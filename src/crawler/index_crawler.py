@@ -1,6 +1,7 @@
 import logging
 from typing import Any
 
+import pd
 import yfinance as yf
 
 from src.config import US_INDEX_SYMBOLS, KR_INDEX_SYMBOLS, USD_KRW_SYMBOL, HISTORY_DAYS
