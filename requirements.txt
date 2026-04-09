@@ -10,3 +10,4 @@ numpy
 scipy
 google-genai
 pandas
+pytz
