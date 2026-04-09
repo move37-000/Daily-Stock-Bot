@@ -13,6 +13,8 @@ permissions:
 jobs:
   generate-report:
     runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Seoul # 이 작업(Job) 전체에 한국 시간 적용
 
     steps:
       - name: 코드 체크아웃
