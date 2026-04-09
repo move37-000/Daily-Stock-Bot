@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from pytz import pytz
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -24,9 +25,13 @@ def generate_report(
     template = _ENV.get_template("report.html")
     now = datetime.now()
 
+    # 타임존을 서울로 설정
+    kst = pytz.timezone('Asia/Seoul')
+    korea_time = datetime.now(kst)  # UTC 서버에서도 한국 시간을 가져옴
+
     html_content = template.render(
-        report_date=now.strftime("%Y-%m-%d"),
-        generated_at=now.strftime("%Y-%m-%d %H:%M KST"),
+        report_date=korea_time.strftime("%Y-%m-%d"),
+        generated_at=korea_time.strftime("%Y-%m-%d %H:%M KST"),
         us_market=us_market,
         kr_market=kr_market,
         us_stocks=us_stocks,
@@ -37,7 +42,7 @@ def generate_report(
         ai_comment=ai_comment
     )
 
-    return _save_report(html_content, now)
+    return _save_report(html_content, korea_time)
 
 
 def _save_report(content: str, timestamp: datetime) -> str:
